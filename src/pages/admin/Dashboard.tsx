@@ -42,7 +42,7 @@ export const AdminDashboard: React.FC = () => {
         supabase.from('profiles').select('*', { count: 'exact', head: true })
       ]);
 
-      const revenue = orders.data?.reduce((sum, o) => sum + o.total_amount, 0) || 0;
+      const revenue = orders.data?.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + o.total_amount, 0) || 0;
 
       setStats({
         totalProducts: products.count || 0,

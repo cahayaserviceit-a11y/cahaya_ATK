@@ -66,7 +66,7 @@ export const Register: React.FC = () => {
                 type="text"
                 required
                 className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                placeholder="Budi Santoso"
+                placeholder="Nur Iman"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />

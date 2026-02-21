@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Order } from '../types';
-import { ShoppingBag, Clock, CheckCircle, Truck, XCircle, Package, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Clock, CheckCircle, Truck, XCircle, Package, ArrowRight, MoreVertical } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export const Orders: React.FC = () => {
   const { user } = useAuth();
@@ -27,6 +28,25 @@ export const Orders: React.FC = () => {
       setOrders(data || []);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const cancelOrder = async (orderId: string) => {
+    const isConfirmed = window.confirm('Apakah Anda yakin ingin membatalkan pesanan ini?');
+    if (!isConfirmed) return;
+
+    const toastId = toast.loading('Membatalkan pesanan...');
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled' })
+        .eq('id', orderId);
+
+      if (error) throw error;
+      toast.success('Pesanan berhasil dibatalkan', { id: toastId });
+      fetchOrders();
+    } catch (error: any) {
+      toast.error('Gagal membatalkan pesanan: ' + error.message, { id: toastId });
     }
   };
 
@@ -99,6 +119,23 @@ export const Orders: React.FC = () => {
                 {getStatusIcon(order.status)}
                 <span>{order.status}</span>
               </div>
+              
+              {order.status === 'pending' && (
+                <div className="relative group">
+                  <button className="p-2 hover:bg-neutral-100 rounded-full transition-colors">
+                    <MoreVertical className="w-5 h-5 text-neutral-400" />
+                  </button>
+                  <div className="absolute right-0 top-full mt-1 bg-white border border-neutral-100 rounded-xl shadow-xl py-2 z-10 hidden group-hover:block min-w-[160px]">
+                    <button 
+                      onClick={() => cancelOrder(order.id)}
+                      className="w-full text-left px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      Batalkan Pesanan
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="p-6 bg-neutral-50/30">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

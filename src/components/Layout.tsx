@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, LogOut, Printer, LayoutDashboard, Menu, X, Info, Truck, RotateCcw } from 'lucide-react';
+import { ShoppingCart, User, LogOut, BookOpen, LayoutDashboard, Menu, X, Info, Truck, RotateCcw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { Toaster } from 'sonner';
@@ -17,6 +17,8 @@ export const Layout: React.FC = () => {
   });
 
   const handleSignOut = async () => {
+    const isConfirmed = window.confirm('Apakah Anda yakin ingin keluar?');
+    if (!isConfirmed) return;
     await signOut();
     navigate('/');
   };
@@ -41,7 +43,20 @@ export const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-neutral-900">
-      <Toaster position="top-center" />
+      <Toaster 
+        position="bottom-center" 
+        expand={false} 
+        richColors 
+        closeButton={false}
+        toastOptions={{
+          style: {
+            borderRadius: '1rem',
+            padding: '1rem',
+            cursor: 'pointer'
+          },
+          duration: 3000
+        }}
+      />
       
       {/* Help Modal */}
       <AnimatePresence>
@@ -92,7 +107,7 @@ export const Layout: React.FC = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-                <Printer className="text-white w-5 h-5" />
+                <BookOpen className="text-white w-5 h-5" />
               </div>
               <span className="text-xl font-bold tracking-tight">CAHAYA ATK</span>
             </Link>
@@ -171,6 +186,9 @@ export const Layout: React.FC = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t border-neutral-100 py-4 px-4 space-y-4 shadow-lg">
             <Link to="/" className="block text-base font-medium py-2" onClick={() => setIsMenuOpen(false)}>Produk</Link>
+            {user && !isAdmin && (
+              <Link to="/orders" className="block text-base font-medium py-2" onClick={() => setIsMenuOpen(false)}>Pesanan Saya</Link>
+            )}
             {isAdmin && (
               <Link to="/admin" className="block text-base font-medium text-emerald-600 py-2" onClick={() => setIsMenuOpen(false)}>Dashboard Admin</Link>
             )}
@@ -208,7 +226,7 @@ export const Layout: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-6 h-6 bg-emerald-600 rounded flex items-center justify-center">
-                  <Printer className="text-white w-4 h-4" />
+                  <BookOpen className="text-white w-4 h-4" />
                 </div>
                 <span className="text-lg font-bold">CAHAYA ATK</span>
               </div>
@@ -222,7 +240,7 @@ export const Layout: React.FC = () => {
                 <li>
                   <button 
                     onClick={() => setHelpModal({ isOpen: true, type: 'belanja' })} 
-                    className="w-full text-left px-3 py-2 bg-emerald-100/50 text-emerald-700 rounded-lg font-bold hover:bg-emerald-100 transition-all"
+                    className="text-emerald-600 font-bold hover:text-emerald-700 transition-all"
                   >
                     Cara Belanja
                   </button>
@@ -230,7 +248,7 @@ export const Layout: React.FC = () => {
                 <li>
                   <button 
                     onClick={() => setHelpModal({ isOpen: true, type: 'pengiriman' })} 
-                    className="w-full text-left px-3 py-2 bg-emerald-100/50 text-emerald-700 rounded-lg font-bold hover:bg-emerald-100 transition-all"
+                    className="text-emerald-600 font-bold hover:text-emerald-700 transition-all"
                   >
                     Pengiriman
                   </button>
@@ -238,7 +256,7 @@ export const Layout: React.FC = () => {
                 <li>
                   <button 
                     onClick={() => setHelpModal({ isOpen: true, type: 'retur' })} 
-                    className="w-full text-left px-3 py-2 bg-emerald-100/50 text-emerald-700 rounded-lg font-bold hover:bg-emerald-100 transition-all"
+                    className="text-emerald-600 font-bold hover:text-emerald-700 transition-all"
                   >
                     Kebijakan Pengembalian
                   </button>

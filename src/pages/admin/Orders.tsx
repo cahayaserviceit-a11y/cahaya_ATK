@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Order } from '../../types';
-import { ShoppingBag, ChevronDown, CheckCircle, Clock, Truck, XCircle } from 'lucide-react';
+import { ShoppingBag, ChevronDown, CheckCircle, Clock, Truck, XCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -39,6 +39,35 @@ export const AdminOrders: React.FC = () => {
       fetchOrders();
     } catch (error: any) {
       toast.error('Gagal memperbarui status: ' + error.message);
+    }
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    const isConfirmed = window.confirm('⚠️ KONFIRMASI PENGHAPUSAN\n\nApakah Anda yakin ingin menghapus pesanan ini secara permanen? Data pendapatan mungkin akan terpengaruh jika pesanan ini sudah selesai.');
+    if (!isConfirmed) return;
+
+    const toastId = toast.loading('Menghapus pesanan...');
+    try {
+      // Delete order items first
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .delete()
+        .eq('order_id', orderId);
+      
+      if (itemsError) throw itemsError;
+      
+      const { error: orderError } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId);
+
+      if (orderError) throw orderError;
+      
+      toast.success('Pesanan berhasil dihapus', { id: toastId });
+      fetchOrders();
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      toast.error('Gagal menghapus pesanan: ' + error.message, { id: toastId });
     }
   };
 
@@ -96,6 +125,14 @@ export const AdminOrders: React.FC = () => {
                   {getStatusIcon(order.status)}
                   <span>{order.status}</span>
                 </div>
+
+                <button 
+                  onClick={(e) => { e.stopPropagation(); deleteOrder(order.id); }}
+                  className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                  title="Hapus Pesanan"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
 
                 <ChevronDown className={`w-5 h-5 text-neutral-300 transition-transform ${expandedOrder === order.id ? 'rotate-180' : ''}`} />
               </div>
