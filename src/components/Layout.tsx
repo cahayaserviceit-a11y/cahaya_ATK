@@ -202,7 +202,7 @@ export const Layout: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-neutral-200 py-12 mt-auto">
+      <footer className="bg-emerald-50/30 border-t border-neutral-200 py-12 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
@@ -218,10 +218,31 @@ export const Layout: React.FC = () => {
             </div>
             <div>
               <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Bantuan</h4>
-              <ul className="space-y-2 text-sm text-neutral-600">
-                <li><button onClick={() => setHelpModal({ isOpen: true, type: 'belanja' })} className="hover:text-emerald-600 transition-colors">Cara Belanja</button></li>
-                <li><button onClick={() => setHelpModal({ isOpen: true, type: 'pengiriman' })} className="hover:text-emerald-600 transition-colors">Pengiriman</button></li>
-                <li><button onClick={() => setHelpModal({ isOpen: true, type: 'retur' })} className="hover:text-emerald-600 transition-colors">Kebijakan Pengembalian</button></li>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <button 
+                    onClick={() => setHelpModal({ isOpen: true, type: 'belanja' })} 
+                    className="w-full text-left px-3 py-2 bg-emerald-100/50 text-emerald-700 rounded-lg font-bold hover:bg-emerald-100 transition-all"
+                  >
+                    Cara Belanja
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setHelpModal({ isOpen: true, type: 'pengiriman' })} 
+                    className="w-full text-left px-3 py-2 bg-emerald-100/50 text-emerald-700 rounded-lg font-bold hover:bg-emerald-100 transition-all"
+                  >
+                    Pengiriman
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setHelpModal({ isOpen: true, type: 'retur' })} 
+                    className="w-full text-left px-3 py-2 bg-emerald-100/50 text-emerald-700 rounded-lg font-bold hover:bg-emerald-100 transition-all"
+                  >
+                    Kebijakan Pengembalian
+                  </button>
+                </li>
               </ul>
             </div>
             <div>

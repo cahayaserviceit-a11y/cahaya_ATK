@@ -138,6 +138,24 @@ export const AdminOrders: React.FC = () => {
 
                     {/* Actions & Info */}
                     <div className="space-y-6">
+                      <div className="bg-white p-4 rounded-2xl border border-neutral-100 space-y-3">
+                        <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Detail Pengiriman</h4>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-neutral-500">Metode:</span>
+                            <span className="font-bold">{order.payment_method === 'cod' ? 'COD (Bayar di Tempat)' : 'QRIS / Transfer Bank'}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-neutral-500">Telepon:</span>
+                            <span className="font-bold">{order.phone}</span>
+                          </div>
+                          <div className="flex flex-col text-sm">
+                            <span className="text-neutral-500">Alamat:</span>
+                            <span className="font-bold mt-1">{order.address}</span>
+                          </div>
+                        </div>
+                      </div>
+
                       <div className="space-y-3">
                         <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Update Status</h4>
                         <div className="grid grid-cols-2 gap-2">
