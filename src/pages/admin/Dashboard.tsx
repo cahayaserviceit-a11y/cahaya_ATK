@@ -130,7 +130,7 @@ export const AdminDashboard: React.FC = () => {
 
   const handleContactSupport = () => {
     const message = encodeURIComponent('Halo Admin Cahaya ATK, saya butuh bantuan terkait pengelolaan toko.');
-    window.open(`https://wa.me/6281944779408?text=${message}`, '_blank');
+    window.open(`https://wa.me/6281934779408?text=${message}`, '_blank');
   };
 
   if (loading) return <div className="animate-pulse space-y-8">...</div>;
