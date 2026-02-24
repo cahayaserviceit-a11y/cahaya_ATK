@@ -7,6 +7,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { toast } from 'sonner';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 export const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState({
@@ -120,8 +123,29 @@ export const AdminDashboard: React.FC = () => {
         doc.text('Belum ada data pesanan.', 14, (doc as any).lastAutoTable.finalY + 10);
       }
 
-      doc.save(`Laporan_Penjualan_${new Date().toISOString().split('T')[0]}.pdf`);
-      toast.success('Laporan berhasil diunduh', { id: toastId });
+      const fileName = `Laporan_Penjualan_${new Date().toISOString().split('T')[0]}.pdf`;
+
+      if (Capacitor.isNativePlatform()) {
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+        
+        const savedFile = await Filesystem.writeFile({
+          path: fileName,
+          data: pdfBase64,
+          directory: Directory.Documents,
+        });
+
+        await Share.share({
+          title: 'Laporan Penjualan Cahaya ATK',
+          text: 'Berikut adalah laporan penjualan terbaru.',
+          url: savedFile.uri,
+          dialogTitle: 'Bagikan Laporan PDF',
+        });
+        
+        toast.success('Laporan berhasil disimpan dan siap dibagikan', { id: toastId });
+      } else {
+        doc.save(fileName);
+        toast.success('Laporan berhasil diunduh', { id: toastId });
+      }
     } catch (error: any) {
       console.error('PDF Error:', error);
       toast.error('Gagal mengunduh laporan: ' + error.message, { id: toastId });
@@ -130,7 +154,7 @@ export const AdminDashboard: React.FC = () => {
 
   const handleContactSupport = () => {
     const message = encodeURIComponent('Halo Admin Cahaya ATK, saya butuh bantuan terkait pengelolaan toko.');
-    window.open(`https://wa.me/6281934779408?text=${message}`, '_blank');
+    window.open(`https://wa.me/6281944779408?text=${message}`, '_blank');
   };
 
   if (loading) return <div className="animate-pulse space-y-8">...</div>;

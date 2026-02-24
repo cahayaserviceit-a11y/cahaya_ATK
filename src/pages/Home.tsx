@@ -64,7 +64,7 @@ export const Home: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Hero Section */}
-      <section className="relative h-[350px] rounded-3xl overflow-hidden bg-neutral-900 text-white flex items-center px-8 sm:px-12">
+      <section className="relative h-[250px] sm:h-[350px] rounded-3xl overflow-hidden bg-neutral-900 text-white flex items-center px-6 sm:px-12">
         <div className="absolute inset-0">
           <img 
             src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=2000&auto=format&fit=crop" 

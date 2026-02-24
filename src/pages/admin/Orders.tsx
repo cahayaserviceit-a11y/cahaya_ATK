@@ -102,39 +102,41 @@ export const AdminOrders: React.FC = () => {
         {orders.map(order => (
           <div key={order.id} className="bg-white rounded-2xl border border-neutral-100 shadow-sm overflow-hidden">
             <div 
-              className="p-6 flex flex-wrap items-center justify-between gap-4 cursor-pointer hover:bg-neutral-50/50 transition-colors"
+              className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-neutral-50/50 transition-colors"
               onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
             >
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-neutral-100 rounded-xl flex items-center justify-center">
-                  <ShoppingBag className="w-6 h-6 text-neutral-400" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-neutral-100 rounded-xl flex items-center justify-center">
+                  <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-400" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm">Order #{order.id.slice(0, 8)}</h3>
-                  <p className="text-xs text-neutral-400">{new Date(order.created_at).toLocaleString()}</p>
+                  <p className="text-[10px] sm:text-xs text-neutral-400">{new Date(order.created_at).toLocaleString()}</p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-8">
-                <div className="text-right">
-                  <p className="text-xs text-neutral-400 uppercase tracking-wider font-bold">Total</p>
-                  <p className="font-black text-lg">Rp {order.total_amount.toLocaleString('id-ID')}</p>
+              <div className="flex items-center justify-between sm:justify-end sm:space-x-8 w-full sm:w-auto">
+                <div className="text-left sm:text-right">
+                  <p className="text-[10px] text-neutral-400 uppercase tracking-wider font-bold">Total</p>
+                  <p className="font-black text-base sm:text-lg">Rp {order.total_amount.toLocaleString('id-ID')}</p>
                 </div>
                 
-                <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider ${getStatusClass(order.status)}`}>
-                  {getStatusIcon(order.status)}
-                  <span>{order.status}</span>
+                <div className="flex items-center space-x-2 sm:space-x-4">
+                  <div className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border text-[10px] sm:text-xs font-bold uppercase tracking-wider ${getStatusClass(order.status)}`}>
+                    {getStatusIcon(order.status)}
+                    <span>{order.status}</span>
+                  </div>
+
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); deleteOrder(order.id); }}
+                    className="p-1.5 sm:p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                    title="Hapus Pesanan"
+                  >
+                    <Trash2 className="w-4 h-4 sm:w-5 h-5" />
+                  </button>
+
+                  <ChevronDown className={`w-4 h-4 sm:w-5 h-5 text-neutral-300 transition-transform ${expandedOrder === order.id ? 'rotate-180' : ''}`} />
                 </div>
-
-                <button 
-                  onClick={(e) => { e.stopPropagation(); deleteOrder(order.id); }}
-                  className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                  title="Hapus Pesanan"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-
-                <ChevronDown className={`w-5 h-5 text-neutral-300 transition-transform ${expandedOrder === order.id ? 'rotate-180' : ''}`} />
               </div>
             </div>
 
