@@ -279,30 +279,32 @@ export const AdminDashboard: React.FC = () => {
               <div className="p-6 overflow-y-auto">
                 <div className="space-y-4">
                   {customers.map((customer) => (
-                    <div key={customer.id} className="flex items-center justify-between p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-neutral-200 shadow-sm">
+                    <div key={customer.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-neutral-50 rounded-2xl border border-neutral-100 gap-4">
+                      <div className="flex items-center space-x-4 min-w-0">
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-neutral-200 shadow-sm flex-shrink-0">
                           <UserIcon className="w-6 h-6 text-neutral-400" />
                         </div>
-                        <div>
-                          <p className="font-bold text-neutral-900">{customer.full_name || 'Tanpa Nama'}</p>
-                          <div className="flex items-center space-x-3 mt-1">
-                            <span className="flex items-center text-xs text-neutral-500">
-                              <Mail className="w-3 h-3 mr-1" />
-                              {customer.email}
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-neutral-900 truncate">{customer.full_name || 'Tanpa Nama'}</p>
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                            <span className="flex items-center text-[10px] sm:text-xs text-neutral-500 min-w-0">
+                              <Mail className="w-3 h-3 mr-1 flex-shrink-0" />
+                              <span className="truncate">{customer.email}</span>
                             </span>
-                            <span className="flex items-center text-xs text-neutral-500">
+                            <span className="flex items-center text-[10px] sm:text-xs text-neutral-500 flex-shrink-0">
                               <Calendar className="w-3 h-3 mr-1" />
                               {new Date(customer.created_at).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        customer.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'
-                      }`}>
-                        {customer.role}
-                      </span>
+                      <div className="flex justify-end sm:block">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          customer.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'
+                        }`}>
+                          {customer.role}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
