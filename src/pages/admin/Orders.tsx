@@ -12,10 +12,25 @@ export const AdminOrders: React.FC = () => {
 
   useEffect(() => {
     fetchOrders();
+
+    const channel = supabase
+      .channel('admin-orders-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        () => {
+          fetchOrders(false);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  const fetchOrders = async () => {
-    setLoading(true);
+  const fetchOrders = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -24,7 +39,7 @@ export const AdminOrders: React.FC = () => {
       if (error) throw error;
       setOrders(data || []);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 

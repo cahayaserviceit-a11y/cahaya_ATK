@@ -21,9 +21,26 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     fetchProducts();
+
+    // Realtime subscription for "always synchronized" behavior
+    const channel = supabase
+      .channel('products-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'products' },
+        () => {
+          fetchProducts(false); // Fetch without showing the full-page spinner
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('products')
@@ -35,7 +52,7 @@ export const Home: React.FC = () => {
     } catch (error: any) {
       toast.error('Gagal mengambil data produk: ' + error.message);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -71,6 +88,7 @@ export const Home: React.FC = () => {
             alt="Hero" 
             className="w-full h-full object-cover opacity-60"
             referrerPolicy="no-referrer"
+            loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-neutral-900/80 to-transparent" />
         </div>
@@ -144,6 +162,7 @@ export const Home: React.FC = () => {
                   alt={product.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   referrerPolicy="no-referrer"
+                  loading="lazy"
                 />
                 <div className="absolute top-2 right-2">
                   <span className="bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-neutral-600 shadow-sm">

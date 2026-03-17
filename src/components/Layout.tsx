@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import { ShoppingCart, User, LogOut, BookOpen, LayoutDashboard, Menu, X, Info, Truck, RotateCcw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -15,6 +16,27 @@ export const Layout: React.FC = () => {
     isOpen: false,
     type: null
   });
+
+  // Supabase Keep-Alive: Pings Supabase to prevent project pausing
+  React.useEffect(() => {
+    const keepAlive = async () => {
+      try {
+        // Simple query to keep the project active
+        const { error } = await supabase.from('products').select('id').limit(1);
+        if (error) console.error('Keep-alive ping failed:', error.message);
+        else console.log('Supabase keep-alive ping successful');
+      } catch (err) {
+        console.error('Keep-alive error:', err);
+      }
+    };
+
+    // Ping on mount
+    keepAlive();
+
+    // Set up an interval to ping every 2 days (well within the 7-day limit)
+    const interval = setInterval(keepAlive, 2 * 24 * 60 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSignOut = async () => {
     const isConfirmed = window.confirm('Apakah Anda yakin ingin keluar?');
@@ -272,8 +294,12 @@ export const Layout: React.FC = () => {
               </ul>
             </div>
           </div>
-          <div className="border-t border-neutral-100 mt-12 pt-8 text-center text-xs text-neutral-400">
-            &copy; {new Date().getFullYear()} CAHAYA ATK. All rights reserved.
+          <div className="border-t border-neutral-100 mt-12 pt-8 text-center">
+            <div className="bg-neutral-900 py-4 rounded-2xl">
+              <p className="text-xs text-white">
+                &copy; {new Date().getFullYear()} CAHAYA ATK. All rights reserved.
+              </p>
+            </div>
           </div>
         </div>
       </footer>

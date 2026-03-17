@@ -25,10 +25,25 @@ export const AdminProducts: React.FC = () => {
 
   useEffect(() => {
     fetchProducts();
+
+    const channel = supabase
+      .channel('admin-products-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'products' },
+        () => {
+          fetchProducts(false);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  const fetchProducts = async () => {
-    setLoading(true);
+  const fetchProducts = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('products')
@@ -37,7 +52,7 @@ export const AdminProducts: React.FC = () => {
       if (error) throw error;
       setProducts(data || []);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 

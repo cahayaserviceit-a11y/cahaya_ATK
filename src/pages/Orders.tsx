@@ -13,10 +13,28 @@ export const Orders: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) fetchOrders();
+    if (user) {
+      fetchOrders();
+
+      const channel = supabase
+        .channel(`user-orders-${user.id}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'orders', filter: `user_id=eq.${user.id}` },
+          () => {
+            fetchOrders(false);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user]);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -27,7 +45,7 @@ export const Orders: React.FC = () => {
       if (error) throw error;
       setOrders(data || []);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
