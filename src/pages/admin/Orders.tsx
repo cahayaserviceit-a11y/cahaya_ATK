@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Order } from '../../types';
-import { ShoppingBag, ChevronDown, CheckCircle, Clock, Truck, XCircle, Trash2 } from 'lucide-react';
+import { ShoppingBag, ChevronDown, CheckCircle, Clock, Truck, XCircle, Trash2, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -9,6 +10,7 @@ export const AdminOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchOrders();
@@ -108,9 +110,17 @@ export const AdminOrders: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Kelola Pesanan</h1>
-        <p className="text-neutral-500">Pantau dan proses pesanan pelanggan</p>
+      <div className="flex items-center space-x-4">
+        <button 
+          onClick={() => navigate('/admin')}
+          className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <div>
+          <h1 className="text-3xl font-bold">Kelola Pesanan</h1>
+          <p className="text-neutral-500">Pantau dan proses pesanan pelanggan</p>
+        </div>
       </div>
 
       <div className="space-y-4">

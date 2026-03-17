@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { App } from '@capacitor/app';
 import { ShoppingCart, User, LogOut, BookOpen, LayoutDashboard, Menu, X, Info, Truck, RotateCcw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -12,6 +13,7 @@ export const Layout: React.FC = () => {
   const { totalItems } = useCart();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
   const [helpModal, setHelpModal] = React.useState<{ isOpen: boolean; type: 'belanja' | 'pengiriman' | 'retur' | null }>({
     isOpen: false,
     type: null
@@ -38,9 +40,25 @@ export const Layout: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Capacitor Back Button Handler
+  React.useEffect(() => {
+    const backListener = App.addListener('backButton', () => {
+      if (window.location.pathname === '/') {
+        // If on home, exit app
+        App.exitApp();
+      } else {
+        // Otherwise go back
+        navigate(-1);
+      }
+    });
+
+    return () => {
+      backListener.then(l => l.remove());
+    };
+  }, [navigate]);
+
   const handleSignOut = async () => {
-    const isConfirmed = window.confirm('Apakah Anda yakin ingin keluar?');
-    if (!isConfirmed) return;
+    setIsLogoutModalOpen(false);
     await signOut();
     navigate('/');
   };
@@ -122,6 +140,47 @@ export const Layout: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Logout Confirmation Modal */}
+      <AnimatePresence>
+        {isLogoutModalOpen && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsLogoutModalOpen(false)}
+              className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden p-8 text-center"
+            >
+              <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <LogOut className="w-8 h-8 text-red-600" />
+              </div>
+              <h2 className="text-2xl font-bold mb-2">Keluar Akun?</h2>
+              <p className="text-neutral-500 mb-8">Apakah Anda yakin ingin keluar dari akun Anda?</p>
+              <div className="flex space-x-3">
+                <button 
+                  onClick={() => setIsLogoutModalOpen(false)}
+                  className="flex-1 bg-neutral-100 text-neutral-600 py-3 rounded-xl font-bold hover:bg-neutral-200 transition-all"
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={handleSignOut}
+                  className="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-100"
+                >
+                  Keluar
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
       {/* Navbar */}
       <nav className="sticky top-0 z-50 bg-white border-b border-neutral-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -167,7 +226,7 @@ export const Layout: React.FC = () => {
                       <span className="text-[10px] text-neutral-500 uppercase tracking-wider">{profile?.role}</span>
                     </div>
                     <button 
-                      onClick={handleSignOut}
+                      onClick={() => setIsLogoutModalOpen(true)}
                       className="p-2 hover:bg-red-50 hover:text-red-600 rounded-full transition-colors"
                     >
                       <LogOut className="w-5 h-5" />
@@ -221,7 +280,7 @@ export const Layout: React.FC = () => {
                   <p className="text-xs text-neutral-500">{profile?.role}</p>
                 </div>
                 <button 
-                  onClick={() => { handleSignOut(); setIsMenuOpen(false); }}
+                  onClick={() => { setIsLogoutModalOpen(true); setIsMenuOpen(false); }}
                   className="w-full text-left text-red-600 font-medium py-2"
                 >
                   Logout

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Product, Order } from '../../types';
-import { Package, ShoppingBag, Users, TrendingUp, ArrowRight, X, Download, User as UserIcon, Mail, Calendar } from 'lucide-react';
+import { Package, ShoppingBag, Users, TrendingUp, ArrowRight, X, Download, User as UserIcon, Mail, Calendar, ArrowLeft, DollarSign } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import jsPDF from 'jspdf';
@@ -23,6 +23,7 @@ export const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isCustomersModalOpen, setIsCustomersModalOpen] = useState(false);
+  const [isRevenueModalOpen, setIsRevenueModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -161,6 +162,94 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      {/* Revenue Modal */}
+      <AnimatePresence>
+        {isRevenueModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsRevenueModalOpen(false)}
+              className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+            >
+              <div className="p-6 border-b border-neutral-100 flex items-center bg-white sticky top-0 z-10">
+                <button onClick={() => setIsRevenueModalOpen(false)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors mr-2">
+                  <ArrowLeft className="w-6 h-6" />
+                </button>
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <TrendingUp className="w-6 h-6 text-emerald-600" />
+                  Detail Pendapatan
+                </h2>
+              </div>
+              <div className="p-6 overflow-y-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                  <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">Total Pendapatan</p>
+                    <p className="text-2xl font-black text-emerald-900">Rp {stats.totalRevenue.toLocaleString('id-ID')}</p>
+                  </div>
+                  <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100">
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">Total Pesanan Selesai</p>
+                    <p className="text-2xl font-black text-blue-900">{stats.totalOrders} Pesanan</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="font-bold text-neutral-900">Ringkasan Penjualan</h3>
+                  <div className="bg-neutral-50 rounded-2xl border border-neutral-100 overflow-hidden">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-neutral-100 border-b border-neutral-200">
+                        <tr>
+                          <th className="px-4 py-3 font-bold">Kategori</th>
+                          <th className="px-4 py-3 font-bold text-right">Nilai</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-200">
+                        <tr>
+                          <td className="px-4 py-3">Total Produk</td>
+                          <td className="px-4 py-3 text-right font-bold">{stats.totalProducts}</td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-3">Total Pelanggan</td>
+                          <td className="px-4 py-3 text-right font-bold">{stats.totalUsers}</td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-3">Rata-rata per Pesanan</td>
+                          <td className="px-4 py-3 text-right font-bold">
+                            Rp {stats.totalOrders > 0 ? (stats.totalRevenue / stats.totalOrders).toLocaleString('id-ID') : 0}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="mt-8 p-6 bg-neutral-900 text-white rounded-2xl">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="font-bold">Unduh Laporan Lengkap</h4>
+                      <p className="text-xs text-neutral-400">Dapatkan rincian transaksi dalam format PDF</p>
+                    </div>
+                    <button 
+                      onClick={handleDownloadReport}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white p-3 rounded-xl transition-all shadow-lg shadow-emerald-900/20"
+                    >
+                      <Download className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Customers Modal */}
       <AnimatePresence>
         {isCustomersModalOpen && (
@@ -178,14 +267,14 @@ export const AdminDashboard: React.FC = () => {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
             >
-              <div className="p-6 border-b border-neutral-100 flex justify-between items-center bg-white sticky top-0 z-10">
+              <div className="p-6 border-b border-neutral-100 flex items-center bg-white sticky top-0 z-10">
+                <button onClick={() => setIsCustomersModalOpen(false)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors mr-2">
+                  <ArrowLeft className="w-6 h-6" />
+                </button>
                 <h2 className="text-xl font-bold flex items-center gap-2">
                   <Users className="w-6 h-6 text-emerald-600" />
                   Daftar Pelanggan
                 </h2>
-                <button onClick={() => setIsCustomersModalOpen(false)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors">
-                  <X className="w-6 h-6" />
-                </button>
               </div>
               <div className="p-6 overflow-y-auto">
                 <div className="space-y-4">
@@ -224,9 +313,17 @@ export const AdminDashboard: React.FC = () => {
       </AnimatePresence>
 
       <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-3xl font-bold text-neutral-900">Admin Dashboard</h1>
-          <p className="text-neutral-500">Ringkasan performa toko ATK CAHAYA</p>
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => navigate('/')}
+            className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-bold text-neutral-900">Admin Dashboard</h1>
+            <p className="text-neutral-500">Ringkasan performa toko ATK CAHAYA</p>
+          </div>
         </div>
         <div className="text-sm font-medium bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full border border-emerald-100">
           Update Terakhir: {currentTime.toLocaleTimeString()}
@@ -243,8 +340,8 @@ export const AdminDashboard: React.FC = () => {
             value: `Rp ${stats.totalRevenue.toLocaleString('id-ID')}`, 
             icon: TrendingUp, 
             color: 'bg-purple-500', 
-            action: handleDownloadReport,
-            actionIcon: <Download className="w-4 h-4" />
+            action: () => setIsRevenueModalOpen(true),
+            actionIcon: <ArrowRight className="w-4 h-4" />
           },
           { 
             label: 'Pelanggan', 

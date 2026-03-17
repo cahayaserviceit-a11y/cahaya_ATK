@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Product } from '../../types';
-import { Plus, Edit, Trash2, Search, X, Image as ImageIcon, Upload } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, X, Image as ImageIcon, Upload, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -22,6 +23,7 @@ export const AdminProducts: React.FC = () => {
     category: 'Kertas',
     image_url: ''
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
@@ -178,14 +180,22 @@ export const AdminProducts: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Kelola Produk</h1>
-          <p className="text-neutral-500">Tambah, edit, atau hapus inventaris toko</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => navigate('/admin')}
+            className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-bold">Kelola Produk</h1>
+            <p className="text-neutral-500">Tambah, edit, atau hapus inventaris toko</p>
+          </div>
         </div>
         <button 
           onClick={() => { setEditingProduct(null); setFormData({ name: '', description: '', price: 0, stock: 0, category: 'Kertas', image_url: '' }); setIsModalOpen(true); }}
-          className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-700 transition-all flex items-center space-x-2 shadow-lg shadow-emerald-100"
+          className="w-full sm:w-auto bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-700 transition-all flex items-center justify-center space-x-2 shadow-lg shadow-emerald-100"
         >
           <Plus className="w-5 h-5" />
           <span>Tambah Produk</span>

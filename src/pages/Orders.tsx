@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Order } from '../types';
-import { ShoppingBag, Clock, CheckCircle, Truck, XCircle, Package, ArrowRight, MoreVertical } from 'lucide-react';
+import { ShoppingBag, Clock, CheckCircle, Truck, XCircle, Package, ArrowRight, MoreVertical, ArrowLeft } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export const Orders: React.FC = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -111,7 +112,15 @@ export const Orders: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold">Pesanan Saya</h1>
+      <div className="flex items-center space-x-4">
+        <button 
+          onClick={() => navigate('/')}
+          className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <h1 className="text-3xl font-bold">Pesanan Saya</h1>
+      </div>
       <div className="space-y-6">
         {orders.map((order) => (
           <motion.div 
