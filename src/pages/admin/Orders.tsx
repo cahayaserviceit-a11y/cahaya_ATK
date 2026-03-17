@@ -110,10 +110,10 @@ export const AdminOrders: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-emerald-50 shadow-sm">
         <button 
           onClick={() => navigate('/admin')}
-          className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+          className="p-2 hover:bg-emerald-100 rounded-full transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
@@ -171,7 +171,7 @@ export const AdminOrders: React.FC = () => {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  className="border-t border-neutral-50 bg-neutral-50/30"
+                  className="border-t border-emerald-100 bg-emerald-50/40"
                 >
                   <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Items List */}

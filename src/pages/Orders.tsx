@@ -2,10 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Order } from '../types';
-import { ShoppingBag, Clock, CheckCircle, Truck, XCircle, Package, ArrowRight, MoreVertical, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, Clock, CheckCircle, Truck, XCircle, Package, ArrowRight, MoreVertical, ArrowLeft, Download, FileText } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 export const Orders: React.FC = () => {
   const { user } = useAuth();
@@ -69,6 +74,103 @@ export const Orders: React.FC = () => {
     }
   };
 
+  const handleDownloadDocument = async (order: Order, type: 'invoice' | 'faktur' | 'surat_pesanan') => {
+    const docTitle = type === 'invoice' ? 'INVOICE' : type === 'faktur' ? 'FAKTUR PENJUALAN' : 'SURAT PESANAN';
+    const toastId = toast.loading(`Menyiapkan ${docTitle.toLowerCase()}...`);
+    
+    try {
+      const doc = new jsPDF();
+      
+      // Store Info
+      doc.setFontSize(22);
+      doc.setTextColor(16, 185, 129); // Emerald 600
+      doc.text('CAHAYA ATK', 105, 20, { align: 'center' });
+      
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text('Penyedia Alat Tulis Kantor & Sekolah Terlengkap', 105, 27, { align: 'center' });
+      doc.text('Jl. Raya Utama No. 123, Kota Anda | WA: 081934779408', 105, 32, { align: 'center' });
+      
+      doc.setDrawColor(200);
+      doc.line(14, 38, 196, 38);
+      
+      // Document Title
+      doc.setFontSize(16);
+      doc.setTextColor(0);
+      doc.text(docTitle, 105, 50, { align: 'center' });
+      
+      // Order Info
+      doc.setFontSize(10);
+      doc.text(`No. Pesanan: #${order.id.slice(0, 8).toUpperCase()}`, 14, 65);
+      doc.text(`Tanggal: ${new Date(order.created_at).toLocaleDateString('id-ID')}`, 14, 70);
+      doc.text(`Status: ${order.status.toUpperCase()}`, 14, 75);
+      
+      // Customer Info
+      doc.text('Kepada Yth:', 140, 65);
+      doc.setFont(undefined, 'bold');
+      doc.text(user?.email || 'Pelanggan Setia', 140, 70);
+      doc.setFont(undefined, 'normal');
+      doc.text(order.phone, 140, 75);
+      doc.text(order.address, 140, 80, { maxWidth: 60 });
+      
+      // Items Table
+      const tableData = order.order_items?.map((item, index) => [
+        index + 1,
+        item.product?.name || 'Produk',
+        item.quantity,
+        `Rp ${item.price_at_time.toLocaleString('id-ID')}`,
+        `Rp ${(item.quantity * item.price_at_time).toLocaleString('id-ID')}`
+      ]) || [];
+      
+      autoTable(doc, {
+        startY: 90,
+        head: [['No', 'Nama Barang', 'Qty', 'Harga Satuan', 'Total']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [16, 185, 129] },
+        foot: [[
+          { content: 'TOTAL PEMBAYARAN', colSpan: 4, styles: { halign: 'right', fontStyle: 'bold' } },
+          { content: `Rp ${order.total_amount.toLocaleString('id-ID')}`, styles: { fontStyle: 'bold' } }
+        ]]
+      });
+      
+      // Footer
+      const finalY = (doc as any).lastAutoTable.finalY + 20;
+      doc.text('Hormat Kami,', 160, finalY);
+      doc.text('CAHAYA ATK', 160, finalY + 25);
+      
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text('* Dokumen ini sah dan dihasilkan secara otomatis oleh sistem CAHAYA ATK.', 14, finalY + 40);
+      
+      const fileName = `${docTitle.replace(' ', '_')}_${order.id.slice(0, 8)}.pdf`;
+      
+      if (Capacitor.isNativePlatform()) {
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+        const savedFile = await Filesystem.writeFile({
+          path: fileName,
+          data: pdfBase64,
+          directory: Directory.Documents,
+        });
+        
+        await Share.share({
+          title: docTitle,
+          text: `Berikut adalah ${docTitle.toLowerCase()} pesanan Anda.`,
+          url: savedFile.uri,
+          dialogTitle: `Bagikan ${docTitle}`,
+        });
+        
+        toast.success(`${docTitle} berhasil disimpan`, { id: toastId });
+      } else {
+        doc.save(fileName);
+        toast.success(`${docTitle} berhasil diunduh`, { id: toastId });
+      }
+    } catch (error: any) {
+      console.error('PDF Error:', error);
+      toast.error(`Gagal mengunduh ${docTitle.toLowerCase()}: ` + error.message, { id: toastId });
+    }
+  };
+
   const getStatusIcon = (status: Order['status']) => {
     switch (status) {
       case 'pending': return <Clock className="w-4 h-4 text-yellow-600" />;
@@ -93,7 +195,7 @@ export const Orders: React.FC = () => {
 
   if (orders.length === 0) {
     return (
-      <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-neutral-200">
+      <div className="text-center py-20 bg-emerald-50/20 rounded-3xl border border-dashed border-emerald-200">
         <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-6">
           <Package className="w-10 h-10 text-neutral-300" />
         </div>
@@ -112,10 +214,10 @@ export const Orders: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-emerald-50 shadow-sm">
         <button 
           onClick={() => navigate('/')}
-          className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+          className="p-2 hover:bg-emerald-100 rounded-full transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
@@ -164,7 +266,7 @@ export const Orders: React.FC = () => {
                 </div>
               )}
             </div>
-            <div className="p-6 bg-neutral-50/30">
+            <div className="p-6 bg-emerald-50/40">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Barang</h4>
@@ -192,6 +294,52 @@ export const Orders: React.FC = () => {
                     <p className="text-sm"><span className="font-bold">Telepon:</span> {order.phone}</p>
                     <p className="text-sm"><span className="font-bold">Alamat:</span> {order.address}</p>
                   </div>
+                  
+                  {order.status === 'delivered' && (
+                    <div className="pt-4 space-y-3">
+                      <h4 className="text-xs font-bold text-emerald-600 uppercase tracking-widest">Dokumen Pesanan</h4>
+                      <div className="grid grid-cols-1 gap-2">
+                        <button 
+                          onClick={() => handleDownloadDocument(order, 'invoice')}
+                          className="flex items-center justify-between p-3 bg-white border border-emerald-100 rounded-xl hover:bg-emerald-50 transition-all group"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-white transition-colors">
+                              <FileText className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <span className="text-sm font-bold text-neutral-700">Invoice Tagihan</span>
+                          </div>
+                          <Download className="w-4 h-4 text-neutral-300 group-hover:text-emerald-600" />
+                        </button>
+                        
+                        <button 
+                          onClick={() => handleDownloadDocument(order, 'faktur')}
+                          className="flex items-center justify-between p-3 bg-white border border-emerald-100 rounded-xl hover:bg-emerald-50 transition-all group"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-white transition-colors">
+                              <FileText className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <span className="text-sm font-bold text-neutral-700">Faktur Penjualan</span>
+                          </div>
+                          <Download className="w-4 h-4 text-neutral-300 group-hover:text-emerald-600" />
+                        </button>
+                        
+                        <button 
+                          onClick={() => handleDownloadDocument(order, 'surat_pesanan')}
+                          className="flex items-center justify-between p-3 bg-white border border-emerald-100 rounded-xl hover:bg-emerald-50 transition-all group"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-white transition-colors">
+                              <FileText className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <span className="text-sm font-bold text-neutral-700">Surat Pesanan</span>
+                          </div>
+                          <Download className="w-4 h-4 text-neutral-300 group-hover:text-emerald-600" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

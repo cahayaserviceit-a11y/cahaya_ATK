@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Product } from '../types';
-import { ShoppingCart, Search, Filter, Package, X, Info, Plus, Minus } from 'lucide-react';
+import { ShoppingCart, Search, Package, X, Info, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
@@ -113,27 +113,26 @@ export const Home: React.FC = () => {
 
       {/* Filters & Search */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-5 h-5" />
+        <div className="relative w-full md:w-96 group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 w-5 h-5 transition-colors group-focus-within:text-emerald-600" />
           <input 
             type="text"
             placeholder="Cari alat tulis..."
-            className="w-full pl-10 pr-4 py-3 bg-white border border-neutral-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+            className="w-full pl-10 pr-4 py-3 bg-white/90 backdrop-blur-sm border border-emerald-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all shadow-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         
         <div className="flex items-center space-x-2 overflow-x-auto pb-2 w-full md:w-auto no-scrollbar">
-          <Filter className="text-neutral-400 w-5 h-5 mr-2 flex-shrink-0" />
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+              className={`px-6 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all shadow-sm ${
                 selectedCategory === cat 
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200' 
-                : 'bg-white text-neutral-600 border border-neutral-200 hover:border-emerald-500'
+                ? 'bg-emerald-600 text-white shadow-emerald-200' 
+                : 'bg-white/90 backdrop-blur-sm text-neutral-600 border border-emerald-50 hover:border-emerald-500 hover:bg-white'
               }`}
             >
               {cat}
@@ -154,7 +153,7 @@ export const Home: React.FC = () => {
               whileTap={{ scale: 0.98 }}
               transition={{ delay: idx * 0.05 }}
               onClick={() => setSelectedProduct(product)}
-              className="group bg-white rounded-2xl border border-neutral-100 overflow-hidden hover:shadow-xl hover:shadow-neutral-200/50 transition-all duration-300 cursor-pointer flex flex-col"
+              className="group bg-white rounded-3xl border border-emerald-50 overflow-hidden hover:shadow-xl hover:shadow-emerald-100/50 transition-all duration-300 cursor-pointer flex flex-col"
             >
               <div className="aspect-square overflow-hidden bg-neutral-100 relative">
                 <img 

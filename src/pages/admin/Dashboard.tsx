@@ -155,7 +155,7 @@ export const AdminDashboard: React.FC = () => {
 
   const handleContactSupport = () => {
     const message = encodeURIComponent('Halo Admin Cahaya ATK, saya butuh bantuan terkait pengelolaan toko.');
-    window.open(`https://wa.me/6281944779408?text=${message}`, '_blank');
+    window.open(`https://wa.me/6281934779408?text=${message}`, '_blank');
   };
 
   if (loading) return <div className="animate-pulse space-y-8">...</div>;
@@ -179,8 +179,8 @@ export const AdminDashboard: React.FC = () => {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
             >
-              <div className="p-6 border-b border-neutral-100 flex items-center bg-white sticky top-0 z-10">
-                <button onClick={() => setIsRevenueModalOpen(false)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors mr-2">
+              <div className="p-6 border-b border-emerald-100 flex items-center bg-emerald-50 sticky top-0 z-10">
+                <button onClick={() => setIsRevenueModalOpen(false)} className="p-2 hover:bg-emerald-100 rounded-full transition-colors mr-2">
                   <ArrowLeft className="w-6 h-6" />
                 </button>
                 <h2 className="text-xl font-bold flex items-center gap-2">
@@ -267,8 +267,8 @@ export const AdminDashboard: React.FC = () => {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
             >
-              <div className="p-6 border-b border-neutral-100 flex items-center bg-white sticky top-0 z-10">
-                <button onClick={() => setIsCustomersModalOpen(false)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors mr-2">
+              <div className="p-6 border-b border-emerald-100 flex items-center bg-emerald-50 sticky top-0 z-10">
+                <button onClick={() => setIsCustomersModalOpen(false)} className="p-2 hover:bg-emerald-100 rounded-full transition-colors mr-2">
                   <ArrowLeft className="w-6 h-6" />
                 </button>
                 <h2 className="text-xl font-bold flex items-center gap-2">
@@ -314,11 +314,11 @@ export const AdminDashboard: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-emerald-50 shadow-sm">
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => navigate('/')}
-            className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+            className="p-2 hover:bg-emerald-100 rounded-full transition-colors"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
@@ -327,7 +327,7 @@ export const AdminDashboard: React.FC = () => {
             <p className="text-neutral-500">Ringkasan performa toko ATK CAHAYA</p>
           </div>
         </div>
-        <div className="text-sm font-medium bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full border border-emerald-100">
+        <div className="text-sm font-medium bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full border border-emerald-200 shadow-sm">
           Update Terakhir: {currentTime.toLocaleTimeString()}
         </div>
       </div>
@@ -362,7 +362,7 @@ export const AdminDashboard: React.FC = () => {
               if (stat.action) stat.action();
               else if (stat.link && stat.link !== '#') navigate(stat.link);
             }}
-            className={`bg-white p-6 rounded-3xl border border-neutral-100 shadow-sm hover:shadow-md transition-all group ${
+            className={`bg-white p-6 rounded-3xl border border-emerald-50 shadow-sm hover:shadow-xl hover:shadow-emerald-100/50 transition-all group ${
               (stat.action || (stat.link && stat.link !== '#')) ? 'cursor-pointer active:scale-95' : ''
             }`}
           >

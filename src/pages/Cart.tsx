@@ -105,7 +105,7 @@ export const Cart: React.FC = () => {
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-neutral-200">
+      <div className="text-center py-20 bg-emerald-50/20 rounded-3xl border border-dashed border-emerald-200">
         <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-6">
           <ShoppingBag className="w-10 h-10 text-neutral-300" />
         </div>
@@ -131,7 +131,7 @@ export const Cart: React.FC = () => {
           <motion.div 
             layout
             key={item.id}
-            className="bg-white p-4 rounded-2xl border border-neutral-100 flex items-center space-x-4 shadow-sm"
+            className="bg-white p-4 rounded-2xl border border-emerald-50 flex items-center space-x-4 shadow-sm"
           >
             <div className="w-24 h-24 rounded-xl overflow-hidden bg-neutral-50 flex-shrink-0">
               <img 
@@ -174,7 +174,7 @@ export const Cart: React.FC = () => {
       {/* Summary */}
       <div className="lg:col-span-1 space-y-6">
         {/* Identity Form */}
-        <div className="bg-white p-6 rounded-3xl border border-neutral-100 shadow-sm">
+        <div className="bg-white p-6 rounded-3xl border border-emerald-50 shadow-sm">
           <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
             <MapPin className="w-5 h-5 text-emerald-600" />
             Informasi Pengiriman
@@ -207,7 +207,7 @@ export const Cart: React.FC = () => {
         </div>
 
         {/* Payment Method */}
-        <div className="bg-white p-6 rounded-3xl border border-neutral-100 shadow-sm">
+        <div className="bg-white p-6 rounded-3xl border border-emerald-50 shadow-sm">
           <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
             <Wallet className="w-5 h-5 text-emerald-600" />
             Metode Pembayaran
@@ -238,7 +238,7 @@ export const Cart: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-3xl border border-neutral-100 shadow-xl shadow-neutral-200/50">
+        <div className="bg-white p-8 rounded-3xl border border-emerald-50 shadow-xl shadow-emerald-100/20">
           <h2 className="text-xl font-bold mb-6">Ringkasan Belanja</h2>
           <div className="space-y-4 mb-8">
             <div className="flex justify-between text-neutral-500">

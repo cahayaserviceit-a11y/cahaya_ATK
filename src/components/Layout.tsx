@@ -82,7 +82,7 @@ export const Layout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 font-sans text-neutral-900">
+    <div className="min-h-screen bg-emerald-50/60 font-sans text-neutral-900">
       <Toaster 
         position="bottom-center" 
         expand={false} 
@@ -348,7 +348,7 @@ export const Layout: React.FC = () => {
               <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Kontak</h4>
               <ul className="space-y-2 text-sm text-neutral-600">
                 <li>Email: cahayaatk@gmail.com</li>
-                <li>WhatsApp: +62 819 4477 9408</li>
+                <li>WhatsApp: +62 819 3477 9408</li>
                 <li>Alamat: Jl. Sultan Agung No. 6, Balegondo</li>
               </ul>
             </div>
