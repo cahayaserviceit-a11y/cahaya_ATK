@@ -288,7 +288,7 @@ export const Home: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
                 onClick={() => setSelectedProduct(product)}
-                className="group bg-emerald-500 rounded-3xl p-[2px] hover:shadow-2xl hover:shadow-emerald-200 transition-all cursor-pointer"
+                className="group bg-emerald-600 rounded-3xl p-0.5 hover:shadow-2xl hover:shadow-emerald-200 transition-all cursor-pointer"
               >
                 <div className="bg-white rounded-[1.4rem] overflow-hidden h-full flex flex-col">
                   <div className="aspect-square relative overflow-hidden bg-neutral-50">
@@ -297,14 +297,14 @@ export const Home: React.FC = () => {
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
-                    <div className="absolute top-3 left-3 z-10">
-                      <div className="bg-emerald-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shadow-lg border-2 border-white">
+                    <div className="absolute top-3 left-3">
+                      <div className="bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shadow-lg">
                         #{idx + 1}
                       </div>
                     </div>
                   </div>
                   <div className="p-4 flex-grow flex flex-col">
-                    <h3 className="font-bold text-sm mb-1 line-clamp-1 group-hover:text-emerald-600 transition-colors">{product.name}</h3>
+                    <h3 className="font-bold text-sm mb-1 line-clamp-1">{product.name}</h3>
                     <p className="text-emerald-600 font-black text-sm mt-auto">
                       Rp {product.price.toLocaleString('id-ID')}
                     </p>
@@ -367,9 +367,9 @@ export const Home: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.05 }}
                 whileHover={{ y: -5 }}
-                whileTap={{ scale: 0.98, boxShadow: "0 0 25px rgba(16,185,129,0.3)" }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setSelectedProduct(product)}
-                className="group bg-white rounded-3xl border-2 border-emerald-500/40 sm:border-emerald-500/10 hover:border-emerald-500 overflow-hidden hover:shadow-2xl hover:shadow-emerald-200/50 transition-all duration-300 cursor-pointer flex flex-col relative"
+                className="group bg-white rounded-3xl border border-emerald-50 overflow-hidden hover:shadow-xl hover:shadow-emerald-100/50 transition-all duration-300 cursor-pointer flex flex-col"
               >
               <div className="aspect-square overflow-hidden bg-neutral-100 relative">
                 <img 
@@ -379,18 +379,8 @@ export const Home: React.FC = () => {
                   referrerPolicy="no-referrer"
                   loading="lazy"
                 />
-                
-                {/* Best Seller Badge like in the image */}
-                {idx < 3 && (
-                  <div className="absolute top-3 left-3 z-10">
-                    <div className="bg-emerald-500 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm shadow-lg border-2 border-white">
-                      #{idx + 1}
-                    </div>
-                  </div>
-                )}
-
-                <div className="absolute top-3 right-3">
-                  <span className="bg-white/95 backdrop-blur px-2 py-1 rounded-lg text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-emerald-700 shadow-sm border border-emerald-100">
+                <div className="absolute top-2 right-2">
+                  <span className="bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-neutral-600 shadow-sm">
                     {product.category}
                   </span>
                 </div>
