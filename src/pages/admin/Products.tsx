@@ -180,7 +180,7 @@ export const AdminProducts: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-emerald-50 shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-emerald-50/50 shadow-sm">
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => navigate('/admin')}
@@ -206,7 +206,7 @@ export const AdminProducts: React.FC = () => {
       <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-emerald-100/50 border-b border-emerald-200">
+            <thead className="bg-emerald-50/10 border-b border-emerald-200">
               <tr>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-neutral-500">Produk</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-neutral-500">Kategori</th>
@@ -283,7 +283,7 @@ export const AdminProducts: React.FC = () => {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden"
             >
-              <div className="p-6 border-b border-emerald-100 flex justify-between items-center bg-emerald-50">
+              <div className="p-6 border-b border-emerald-100 flex justify-between items-center bg-emerald-50/10">
                 <h2 className="text-xl font-bold">{editingProduct ? 'Edit Produk' : 'Tambah Produk Baru'}</h2>
                 <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-neutral-100 rounded-full">
                   <X className="w-6 h-6" />

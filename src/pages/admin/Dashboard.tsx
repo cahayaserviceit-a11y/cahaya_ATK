@@ -179,7 +179,7 @@ export const AdminDashboard: React.FC = () => {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
             >
-              <div className="p-6 border-b border-emerald-100 flex items-center bg-emerald-50 sticky top-0 z-10">
+              <div className="p-6 border-b border-emerald-100 flex items-center bg-emerald-50/10 sticky top-0 z-10">
                 <button onClick={() => setIsRevenueModalOpen(false)} className="p-2 hover:bg-emerald-100 rounded-full transition-colors mr-2">
                   <ArrowLeft className="w-6 h-6" />
                 </button>
@@ -190,7 +190,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
               <div className="p-6 overflow-y-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                  <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100">
+                  <div className="p-6 bg-emerald-50/5 rounded-2xl border border-emerald-100">
                     <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">Total Pendapatan</p>
                     <p className="text-2xl font-black text-emerald-900">Rp {stats.totalRevenue.toLocaleString('id-ID')}</p>
                   </div>
@@ -267,7 +267,7 @@ export const AdminDashboard: React.FC = () => {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
             >
-              <div className="p-6 border-b border-emerald-100 flex items-center bg-emerald-50 sticky top-0 z-10">
+              <div className="p-6 border-b border-emerald-100 flex items-center bg-emerald-50/10 sticky top-0 z-10">
                 <button onClick={() => setIsCustomersModalOpen(false)} className="p-2 hover:bg-emerald-100 rounded-full transition-colors mr-2">
                   <ArrowLeft className="w-6 h-6" />
                 </button>
@@ -314,7 +314,7 @@ export const AdminDashboard: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-emerald-50 shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-emerald-50/50 shadow-sm">
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => navigate('/')}
@@ -362,7 +362,7 @@ export const AdminDashboard: React.FC = () => {
               if (stat.action) stat.action();
               else if (stat.link && stat.link !== '#') navigate(stat.link);
             }}
-            className={`bg-white p-6 rounded-3xl border border-emerald-50 shadow-sm hover:shadow-xl hover:shadow-emerald-100/50 transition-all group ${
+            className={`bg-white p-6 rounded-3xl border border-emerald-50/50 shadow-sm hover:shadow-xl hover:shadow-emerald-100/50 transition-all group ${
               (stat.action || (stat.link && stat.link !== '#')) ? 'cursor-pointer active:scale-95' : ''
             }`}
           >

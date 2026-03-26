@@ -215,7 +215,7 @@ export const Home: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-neutral-200">
+        <div className="text-center py-20 bg-emerald-50/5 rounded-3xl border border-dashed border-neutral-200">
           <Package className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-neutral-900">Produk tidak ditemukan</h3>
           <p className="text-neutral-500">Coba gunakan kata kunci lain atau filter kategori yang berbeda.</p>
@@ -256,7 +256,7 @@ export const Home: React.FC = () => {
 
               <div className="w-full md:w-1/2 p-6 sm:p-8 flex flex-col overflow-y-auto">
                 <div className="mb-6">
-                  <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">
+                  <span className="inline-block px-3 py-1 bg-emerald-50/10 text-emerald-700 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">
                     {selectedProduct.category}
                   </span>
                   <h2 className="text-2xl sm:text-3xl font-black text-neutral-900 leading-tight mb-2">
@@ -275,7 +275,7 @@ export const Home: React.FC = () => {
                     </p>
                   </div>
                   
-                  <div className="flex items-center space-x-4 p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
+                  <div className="flex items-center space-x-4 p-4 bg-emerald-50/5 rounded-2xl border border-neutral-100">
                     <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-neutral-200 shadow-sm">
                       <Package className="w-5 h-5 text-neutral-400" />
                     </div>

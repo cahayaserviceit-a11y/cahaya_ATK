@@ -110,7 +110,7 @@ export const AdminOrders: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center space-x-4 bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-emerald-50 shadow-sm">
+      <div className="flex items-center space-x-4 bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-emerald-50/50 shadow-sm">
         <button 
           onClick={() => navigate('/admin')}
           className="p-2 hover:bg-emerald-100 rounded-full transition-colors"
@@ -171,7 +171,7 @@ export const AdminOrders: React.FC = () => {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  className="border-t border-emerald-100 bg-emerald-50/40"
+                  className="border-t border-emerald-100 bg-emerald-50/10"
                 >
                   <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Items List */}
@@ -239,7 +239,7 @@ export const AdminOrders: React.FC = () => {
                         </div>
                       </div>
                       
-                      <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                      <div className="p-4 bg-emerald-50/5 rounded-2xl border border-emerald-100">
                         <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-2">Informasi Pembayaran</h4>
                         <p className="text-sm text-emerald-900">Pembayaran dilakukan melalui Transfer Bank / E-Wallet. Silakan verifikasi bukti bayar sebelum memproses pesanan.</p>
                       </div>

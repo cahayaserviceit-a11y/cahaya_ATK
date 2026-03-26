@@ -75,73 +75,142 @@ export const Orders: React.FC = () => {
   };
 
   const handleDownloadDocument = async (order: Order, type: 'invoice' | 'faktur' | 'surat_pesanan') => {
-    const docTitle = type === 'invoice' ? 'INVOICE' : type === 'faktur' ? 'FAKTUR PENJUALAN' : 'SURAT PESANAN';
+    const docTitle = type === 'invoice' ? 'NOTA PESANAN' : type === 'faktur' ? 'FAKTUR PENJUALAN' : 'SURAT PESANAN';
     const toastId = toast.loading(`Menyiapkan ${docTitle.toLowerCase()}...`);
     
     try {
       const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
       
-      // Store Info
-      doc.setFontSize(22);
+      // 1. Header Logo & Title
+      doc.setFontSize(24);
       doc.setTextColor(16, 185, 129); // Emerald 600
-      doc.text('CAHAYA ATK', 105, 20, { align: 'center' });
-      
-      doc.setFontSize(10);
-      doc.setTextColor(100);
-      doc.text('Penyedia Alat Tulis Kantor & Sekolah Terlengkap', 105, 27, { align: 'center' });
-      doc.text('Jl. Raya Utama No. 123, Kota Anda | WA: 081934779408', 105, 32, { align: 'center' });
-      
-      doc.setDrawColor(200);
-      doc.line(14, 38, 196, 38);
-      
-      // Document Title
-      doc.setFontSize(16);
-      doc.setTextColor(0);
-      doc.text(docTitle, 105, 50, { align: 'center' });
-      
-      // Order Info
-      doc.setFontSize(10);
-      doc.text(`No. Pesanan: #${order.id.slice(0, 8).toUpperCase()}`, 14, 65);
-      doc.text(`Tanggal: ${new Date(order.created_at).toLocaleDateString('id-ID')}`, 14, 70);
-      doc.text(`Status: ${order.status.toUpperCase()}`, 14, 75);
-      
-      // Customer Info
-      doc.text('Kepada Yth:', 140, 65);
       doc.setFont(undefined, 'bold');
-      doc.text(user?.email || 'Pelanggan Setia', 140, 70);
-      doc.setFont(undefined, 'normal');
-      doc.text(order.phone, 140, 75);
-      doc.text(order.address, 140, 80, { maxWidth: 60 });
+      doc.text('CAHAYA ATK', pageWidth / 2, 20, { align: 'center' });
       
-      // Items Table
+      doc.setFontSize(14);
+      doc.setTextColor(0);
+      doc.text('Nota Pesanan', 14, 35);
+      
+      // 2. Buyer & Seller Info Box (Gray Box)
+      doc.setFillColor(245, 245, 245);
+      doc.rect(14, 40, pageWidth - 28, 45, 'F');
+      
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'bold');
+      doc.text('Nama Pembeli:', 20, 48);
+      doc.setFont(undefined, 'normal');
+      doc.text(user?.email || 'Pelanggan Setia', 50, 48);
+      
+      doc.setFont(undefined, 'bold');
+      doc.text('Alamat Pembeli:', 20, 55);
+      doc.setFont(undefined, 'normal');
+      doc.text(order.address, 50, 55, { maxWidth: 80 });
+      
+      doc.setFont(undefined, 'bold');
+      doc.text('No. Handphone:', 20, 75);
+      doc.setFont(undefined, 'normal');
+      doc.text(order.phone, 50, 75);
+      
+      // Right side of the gray box
+      doc.setFont(undefined, 'bold');
+      doc.text('Nama Penjual:', 130, 48);
+      doc.setFont(undefined, 'normal');
+      doc.text('CAHAYA ATK', 160, 48);
+      
+      // 3. Order Summary Row
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'bold');
+      doc.text('No. Pesanan', 14, 95);
+      doc.text('Tanggal Transaksi', 55, 95);
+      doc.text('Metode Pembayaran', 100, 95);
+      doc.text('Jasa Kirim', 150, 95);
+      
+      doc.setFont(undefined, 'normal');
+      doc.text(order.id.slice(0, 12).toUpperCase(), 14, 102);
+      doc.text(new Date(order.created_at).toLocaleDateString('id-ID'), 55, 102);
+      doc.text(order.payment_method === 'cod' ? 'COD' : 'QRIS/Transfer', 100, 102);
+      doc.text('Reguler', 150, 102);
+      
+      // 4. Product Details Table
+      doc.setFont(undefined, 'bold');
+      doc.text('Rincian Pesanan', 14, 115);
+      
       const tableData = order.order_items?.map((item, index) => [
         index + 1,
         item.product?.name || 'Produk',
-        item.quantity,
         `Rp ${item.price_at_time.toLocaleString('id-ID')}`,
+        item.quantity,
         `Rp ${(item.quantity * item.price_at_time).toLocaleString('id-ID')}`
       ]) || [];
       
       autoTable(doc, {
-        startY: 90,
-        head: [['No', 'Nama Barang', 'Qty', 'Harga Satuan', 'Total']],
+        startY: 120,
+        head: [['No.', 'Produk', 'Harga Produk', 'Kuantitas', 'Subtotal']],
         body: tableData,
-        theme: 'grid',
-        headStyles: { fillColor: [16, 185, 129] },
-        foot: [[
-          { content: 'TOTAL PEMBAYARAN', colSpan: 4, styles: { halign: 'right', fontStyle: 'bold' } },
-          { content: `Rp ${order.total_amount.toLocaleString('id-ID')}`, styles: { fontStyle: 'bold' } }
-        ]]
+        theme: 'plain',
+        headStyles: { 
+          fillColor: [255, 255, 255], 
+          textColor: [100, 100, 100],
+          fontSize: 8,
+          fontStyle: 'bold',
+          lineWidth: 0.1,
+          lineColor: [230, 230, 230]
+        },
+        bodyStyles: { 
+          fontSize: 8,
+          lineWidth: 0.1,
+          lineColor: [245, 245, 245]
+        },
+        columnStyles: {
+          0: { cellWidth: 10 },
+          1: { cellWidth: 'auto' },
+          2: { halign: 'right' },
+          3: { halign: 'center' },
+          4: { halign: 'right' }
+        }
       });
       
-      // Footer
-      const finalY = (doc as any).lastAutoTable.finalY + 20;
-      doc.text('Hormat Kami,', 160, finalY);
-      doc.text('CAHAYA ATK', 160, finalY + 25);
+      // 5. Totals Section
+      const finalY = (doc as any).lastAutoTable.finalY + 10;
       
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'bold');
+      doc.text('Subtotal', 140, finalY);
+      doc.text(`Rp ${order.total_amount.toLocaleString('id-ID')}`, pageWidth - 14, finalY, { align: 'right' });
+      
+      doc.setFont(undefined, 'normal');
       doc.setFontSize(8);
-      doc.setTextColor(150);
-      doc.text('* Dokumen ini sah dan dihasilkan secara otomatis oleh sistem CAHAYA ATK.', 14, finalY + 40);
+      doc.text(`Total Kuantitas: ${order.order_items?.reduce((sum, i) => sum + i.quantity, 0)} produk`, 140, finalY + 5);
+      
+      // Gray box for breakdown
+      doc.setFillColor(250, 250, 250);
+      doc.rect(110, finalY + 15, pageWidth - 124, 45, 'F');
+      
+      const breakdownY = finalY + 25;
+      doc.text('Subtotal Pesanan', 115, breakdownY);
+      doc.text(`Rp ${order.total_amount.toLocaleString('id-ID')}`, pageWidth - 20, breakdownY, { align: 'right' });
+      
+      doc.text('Subtotal Pengiriman', 115, breakdownY + 7);
+      doc.text('Rp 0', pageWidth - 20, breakdownY + 7, { align: 'right' });
+      
+      doc.text('Biaya Layanan', 115, breakdownY + 14);
+      doc.text('Rp 0', pageWidth - 20, breakdownY + 14, { align: 'right' });
+      
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text('Total Pembayaran', 115, breakdownY + 25);
+      doc.text(`Rp ${order.total_amount.toLocaleString('id-ID')}`, pageWidth - 20, breakdownY + 25, { align: 'right' });
+      
+      // 6. Footer
+      doc.setFontSize(8);
+      doc.setFont(undefined, 'normal');
+      doc.setTextColor(100);
+      doc.text('CAHAYA ATK - Solusi Alat Tulis Kantor & Sekolah', 14, doc.internal.pageSize.height - 30);
+      doc.text('Jl. Sultan Agung, RT.3/RW.2, Balegondo, Ngariiboyo, Magetan', 14, doc.internal.pageSize.height - 25);
+      doc.text('NPWP: 00.000.000.0-000.000', 14, doc.internal.pageSize.height - 20);
+      
+      doc.text('End of receipt', pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
       
       const fileName = `${docTitle.replace(' ', '_')}_${order.id.slice(0, 8)}.pdf`;
       
@@ -195,7 +264,7 @@ export const Orders: React.FC = () => {
 
   if (orders.length === 0) {
     return (
-      <div className="text-center py-20 bg-emerald-50/20 rounded-3xl border border-dashed border-emerald-200">
+      <div className="text-center py-20 bg-emerald-50/5 rounded-3xl border border-dashed border-emerald-200">
         <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-6">
           <Package className="w-10 h-10 text-neutral-300" />
         </div>
@@ -214,7 +283,7 @@ export const Orders: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center space-x-4 bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-emerald-50 shadow-sm">
+      <div className="flex items-center space-x-4 bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-emerald-50/50 shadow-sm">
         <button 
           onClick={() => navigate('/')}
           className="p-2 hover:bg-emerald-100 rounded-full transition-colors"
@@ -266,7 +335,7 @@ export const Orders: React.FC = () => {
                 </div>
               )}
             </div>
-            <div className="p-6 bg-emerald-50/40">
+            <div className="p-6 bg-emerald-50/10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Barang</h4>

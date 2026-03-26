@@ -82,7 +82,7 @@ export const Layout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-emerald-50/60 font-sans text-neutral-900">
+    <div className="min-h-screen bg-emerald-50/5 font-sans text-neutral-900 flex flex-col">
       <Toaster 
         position="bottom-center" 
         expand={false} 
@@ -92,7 +92,8 @@ export const Layout: React.FC = () => {
           style: {
             borderRadius: '1rem',
             padding: '1rem',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            marginBottom: '1rem'
           },
           duration: 3000
         }}
@@ -296,12 +297,12 @@ export const Layout: React.FC = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <Outlet />
       </main>
 
       {/* Footer */}
-      <footer className="bg-emerald-50/30 border-t border-neutral-200 py-12 mt-auto">
+      <footer className="bg-white border-t border-neutral-200 py-12 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
@@ -353,15 +354,15 @@ export const Layout: React.FC = () => {
               </ul>
             </div>
           </div>
-          <div className="border-t border-neutral-100 mt-12 pt-8 text-center">
-            <div className="bg-neutral-900 py-4 rounded-2xl">
-              <p className="text-xs text-white">
-                &copy; {new Date().getFullYear()} CAHAYA ATK. All rights reserved.
-              </p>
-            </div>
-          </div>
         </div>
       </footer>
+
+      {/* Copyright Bar - At the very bottom of the page flow */}
+      <div className="bg-neutral-900 py-6">
+        <p className="text-xs text-white text-center font-medium">
+          &copy; {new Date().getFullYear()} CAHAYA ATK. All rights reserved.
+        </p>
+      </div>
     </div>
   );
 };

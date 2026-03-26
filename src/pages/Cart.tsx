@@ -105,7 +105,7 @@ export const Cart: React.FC = () => {
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-20 bg-emerald-50/20 rounded-3xl border border-dashed border-emerald-200">
+      <div className="text-center py-20 bg-emerald-50/5 rounded-3xl border border-dashed border-emerald-200">
         <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-6">
           <ShoppingBag className="w-10 h-10 text-neutral-300" />
         </div>
@@ -217,7 +217,7 @@ export const Cart: React.FC = () => {
               onClick={() => setPaymentMethod('cod')}
               className={`p-3 rounded-2xl border text-center transition-all ${
                 paymentMethod === 'cod' 
-                ? 'bg-emerald-50 border-emerald-600 text-emerald-700' 
+                ? 'bg-emerald-50/10 border-emerald-600 text-emerald-700' 
                 : 'bg-white border-neutral-200 text-neutral-600 hover:border-emerald-300'
               }`}
             >
@@ -228,7 +228,7 @@ export const Cart: React.FC = () => {
               onClick={() => setPaymentMethod('qris_transfer')}
               className={`p-3 rounded-2xl border text-center transition-all ${
                 paymentMethod === 'qris_transfer' 
-                ? 'bg-emerald-50 border-emerald-600 text-emerald-700' 
+                ? 'bg-emerald-50/10 border-emerald-600 text-emerald-700' 
                 : 'bg-white border-neutral-200 text-neutral-600 hover:border-emerald-300'
               }`}
             >
