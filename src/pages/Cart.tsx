@@ -9,13 +9,21 @@ import { motion } from 'motion/react';
 
 export const Cart: React.FC = () => {
   const { items, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, profile } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'qris_transfer'>('cod');
+
+  // Pre-fill from profile
+  React.useEffect(() => {
+    if (profile) {
+      if (profile.phone && !phone) setPhone(profile.phone);
+      if (profile.address && !address) setAddress(profile.address);
+    }
+  }, [profile]);
 
   const handleCheckout = async () => {
     if (!user) {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { App } from '@capacitor/app';
-import { ShoppingCart, User, LogOut, BookOpen, LayoutDashboard, Menu, X, Info, Truck, RotateCcw } from 'lucide-react';
+import { ShoppingCart, User, LogOut, BookOpen, LayoutDashboard, Menu, X, Info, Truck, RotateCcw, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { Toaster } from 'sonner';
@@ -222,10 +222,31 @@ export const Layout: React.FC = () => {
 
                 {user ? (
                   <div className="flex items-center space-x-4">
-                    <div className="flex flex-col items-end">
+                    <Link 
+                      to="/settings" 
+                      className="flex flex-col items-end hover:text-emerald-600 transition-colors"
+                    >
                       <span className="text-xs font-semibold">{profile?.full_name || user.email}</span>
                       <span className="text-[10px] text-neutral-500 uppercase tracking-wider">{profile?.role}</span>
-                    </div>
+                    </Link>
+                    <Link 
+                      to="/settings"
+                      className="w-9 h-9 rounded-xl overflow-hidden border border-neutral-100 hover:border-emerald-500 transition-all shadow-sm"
+                      title="Pengaturan Profil"
+                    >
+                      {profile?.avatar_url ? (
+                        <img 
+                          src={profile.avatar_url} 
+                          alt="Profile" 
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-emerald-50 flex items-center justify-center">
+                          <User className="w-5 h-5 text-emerald-600" />
+                        </div>
+                      )}
+                    </Link>
                     <button 
                       onClick={() => setIsLogoutModalOpen(true)}
                       className="p-2 hover:bg-red-50 hover:text-red-600 rounded-full transition-colors"
@@ -276,10 +297,37 @@ export const Layout: React.FC = () => {
             )}
             {user ? (
               <>
-                <div className="py-2 border-t border-neutral-100">
-                  <p className="text-sm font-semibold">{profile?.full_name || user.email}</p>
-                  <p className="text-xs text-neutral-500">{profile?.role}</p>
+                <div className="py-2 border-t border-neutral-100 flex justify-between items-center">
+                  <div>
+                    <p className="text-sm font-semibold">{profile?.full_name || user.email}</p>
+                    <p className="text-xs text-neutral-500">{profile?.role}</p>
+                  </div>
+                  <Link 
+                    to="/settings" 
+                    className="w-10 h-10 rounded-xl overflow-hidden border border-emerald-100 shadow-sm"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {profile?.avatar_url ? (
+                      <img 
+                        src={profile.avatar_url} 
+                        alt="Profile" 
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-emerald-50 flex items-center justify-center">
+                        <User className="w-5 h-5 text-emerald-600" />
+                      </div>
+                    )}
+                  </Link>
                 </div>
+                <Link 
+                  to="/settings" 
+                  className="block text-base font-medium py-2" 
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Pengaturan Profil
+                </Link>
                 <button 
                   onClick={() => { setIsLogoutModalOpen(true); setIsMenuOpen(false); }}
                   className="w-full text-left text-red-600 font-medium py-2"
