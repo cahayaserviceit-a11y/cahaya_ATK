@@ -314,11 +314,13 @@ export const AdminProducts: React.FC = () => {
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-neutral-500 uppercase">Deskripsi</label>
                   <textarea 
-                    required rows={3}
+                    required rows={4}
+                    placeholder="Gunakan nomor (1. 2. 3.) untuk membuat daftar yang rapi..."
                     className="w-full px-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                     value={formData.description}
                     onChange={e => setFormData({...formData, description: e.target.value})}
                   />
+                  <p className="text-[10px] text-neutral-400">Tips: Gunakan nomor (1. 2. 3.) untuk membuat daftar otomatis ke bawah.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">

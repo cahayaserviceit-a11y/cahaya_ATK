@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { App } from '@capacitor/app';
-import { ShoppingCart, User, LogOut, BookOpen, LayoutDashboard, Menu, X, Info, Truck, RotateCcw, Settings } from 'lucide-react';
+import { ShoppingCart, User, LogOut, BookOpen, LayoutDashboard, Menu, X, Info, Truck, RotateCcw, Settings, Instagram, Facebook, Mail, Phone, MapPin, CreditCard, Wallet, MessageCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { Toaster } from 'sonner';
@@ -350,67 +350,134 @@ export const Layout: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-neutral-200 py-12 mt-auto">
+      <footer className="bg-white border-t border-neutral-200 pt-16 pb-8 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-6 h-6 bg-emerald-600 rounded flex items-center justify-center">
-                  <BookOpen className="text-white w-4 h-4" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            {/* Brand Section */}
+            <div className="space-y-6">
+              <Link to="/" className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-100">
+                  <BookOpen className="text-white w-6 h-6" />
                 </div>
-                <span className="text-lg font-bold">CAHAYA ATK</span>
-              </div>
-              <p className="text-sm text-neutral-500 max-w-xs">
-                Solusi kebutuhan alat tulis kantor dan sekolah terlengkap dengan harga terbaik.
+                <span className="text-2xl font-black tracking-tighter">CAHAYA ATK</span>
+              </Link>
+              <p className="text-neutral-500 text-sm leading-relaxed">
+                Pusat perlengkapan alat tulis kantor dan sekolah terlengkap di Balegondo. Kami berkomitmen memberikan kualitas terbaik dengan harga yang kompetitif.
               </p>
+              <div className="flex items-center space-x-4">
+                <a href="#" className="w-10 h-10 bg-neutral-50 rounded-full flex items-center justify-center text-neutral-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-neutral-100">
+                  <Instagram className="w-5 h-5" />
+                </a>
+                <a href="#" className="w-10 h-10 bg-neutral-50 rounded-full flex items-center justify-center text-neutral-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-neutral-100">
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href="mailto:cahayaatk@gmail.com" className="w-10 h-10 bg-neutral-50 rounded-full flex items-center justify-center text-neutral-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-neutral-100">
+                  <Mail className="w-5 h-5" />
+                </a>
+              </div>
             </div>
+
+            {/* Quick Links */}
             <div>
-              <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Bantuan</h4>
-              <ul className="space-y-3 text-sm">
+              <h4 className="text-sm font-black uppercase tracking-[0.2em] text-neutral-900 mb-6">Bantuan & Layanan</h4>
+              <ul className="space-y-4">
                 <li>
                   <button 
                     onClick={() => setHelpModal({ isOpen: true, type: 'belanja' })} 
-                    className="text-emerald-600 font-bold hover:text-emerald-700 transition-all"
+                    className="text-neutral-500 hover:text-emerald-600 text-sm font-medium transition-colors flex items-center space-x-2"
                   >
-                    Cara Belanja
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                    <span>Cara Belanja</span>
                   </button>
                 </li>
                 <li>
                   <button 
                     onClick={() => setHelpModal({ isOpen: true, type: 'pengiriman' })} 
-                    className="text-emerald-600 font-bold hover:text-emerald-700 transition-all"
+                    className="text-neutral-500 hover:text-emerald-600 text-sm font-medium transition-colors flex items-center space-x-2"
                   >
-                    Pengiriman
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                    <span>Informasi Pengiriman</span>
                   </button>
                 </li>
                 <li>
                   <button 
                     onClick={() => setHelpModal({ isOpen: true, type: 'retur' })} 
-                    className="text-emerald-600 font-bold hover:text-emerald-700 transition-all"
+                    className="text-neutral-500 hover:text-emerald-600 text-sm font-medium transition-colors flex items-center space-x-2"
                   >
-                    Kebijakan Pengembalian
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                    <span>Kebijakan Retur</span>
                   </button>
                 </li>
               </ul>
             </div>
+
+            {/* Contact Info */}
             <div>
-              <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Kontak</h4>
-              <ul className="space-y-2 text-sm text-neutral-600">
-                <li>Email: cahayaatk@gmail.com</li>
-                <li>WhatsApp: +62 819 3477 9408</li>
-                <li>Alamat: Jl. Sultan Agung No. 6, Balegondo</li>
+              <h4 className="text-sm font-black uppercase tracking-[0.2em] text-neutral-900 mb-6">Hubungi Kami</h4>
+              <ul className="space-y-4">
+                <li className="flex items-start space-x-3 text-sm text-neutral-500">
+                  <MapPin className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <span>Jl. Sultan Agung No. 6, Balegondo, Magetan, Jawa Timur</span>
+                </li>
+                <li className="flex items-center space-x-3 text-sm text-neutral-500">
+                  <Phone className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <span>+62 819 3477 9408</span>
+                </li>
+                <li className="flex items-center space-x-3 text-sm text-neutral-500">
+                  <Mail className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <span>cahayaatk@gmail.com</span>
+                </li>
               </ul>
+            </div>
+
+            {/* Payment & Trust */}
+            <div>
+              <h4 className="text-sm font-black uppercase tracking-[0.2em] text-neutral-900 mb-6">Metode Pembayaran</h4>
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="h-10 bg-neutral-50 rounded-lg border border-neutral-100 flex items-center justify-center p-2 grayscale hover:grayscale-0 transition-all">
+                  <CreditCard className="w-6 h-6 text-neutral-400" />
+                </div>
+                <div className="h-10 bg-neutral-50 rounded-lg border border-neutral-100 flex items-center justify-center p-2 grayscale hover:grayscale-0 transition-all">
+                  <Wallet className="w-6 h-6 text-neutral-400" />
+                </div>
+                <div className="h-10 bg-neutral-50 rounded-lg border border-neutral-100 flex items-center justify-center p-2 grayscale hover:grayscale-0 transition-all">
+                  <span className="text-[10px] font-bold text-neutral-400">COD</span>
+                </div>
+              </div>
+              <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                <p className="text-[10px] text-emerald-800 font-bold uppercase tracking-widest mb-1">Jam Operasional</p>
+                <p className="text-xs text-emerald-600">Senin - Sabtu: 08:00 - 20:00</p>
+                <p className="text-xs text-emerald-600">Minggu: 09:00 - 17:00</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-neutral-100 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <p className="text-xs text-neutral-400 font-medium">
+              &copy; {new Date().getFullYear()} CAHAYA ATK. All rights reserved.
+            </p>
+            <div className="flex items-center space-x-6">
+              <a href="#" className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest hover:text-emerald-600 transition-colors">Privacy Policy</a>
+              <a href="#" className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest hover:text-emerald-600 transition-colors">Terms of Service</a>
             </div>
           </div>
         </div>
       </footer>
 
-      {/* Copyright Bar - At the very bottom of the page flow */}
-      <div className="bg-neutral-900 py-6">
-        <p className="text-xs text-white text-center font-medium">
-          &copy; {new Date().getFullYear()} CAHAYA ATK. All rights reserved.
-        </p>
-      </div>
+      {/* Floating WhatsApp Button */}
+      <a 
+        href="https://wa.me/6281934779408" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-[100] bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all group"
+        title="Chat via WhatsApp"
+      >
+        <MessageCircle className="w-6 h-6" />
+        <span className="absolute right-full mr-3 bg-white text-neutral-900 px-3 py-1.5 rounded-lg text-xs font-bold shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+          Tanya Admin
+        </span>
+      </a>
     </div>
   );
 };

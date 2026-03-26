@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Product } from '../types';
-import { ShoppingCart, Search, Package, X, Info, Plus, Minus } from 'lucide-react';
+import { ShoppingCart, Search, Package, X, Info, Plus, Minus, Truck, ShieldCheck, Zap, HeartHandshake } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
+import Markdown from 'react-markdown';
 
 export const Home: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -18,6 +19,9 @@ export const Home: React.FC = () => {
   const { isAdmin } = useAuth();
 
   const categories = ['Semua', 'Kertas', 'Pena & Pensil', 'Buku', 'Arsip', 'Lainnya'];
+
+  // Best Seller logic (simulated by taking first 4 products)
+  const bestSellers = products.slice(0, 4);
 
   useEffect(() => {
     fetchProducts();
@@ -107,7 +111,7 @@ export const Home: React.FC = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
-    }, 2500);
+    }, 5000);
     return () => clearInterval(timer);
   }, []);
 
@@ -144,8 +148,30 @@ export const Home: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-600"></div>
+      <div className="space-y-12">
+        {/* Banner Skeleton */}
+        <div className="h-[250px] sm:h-[350px] bg-neutral-200 rounded-3xl animate-pulse" />
+        
+        {/* Filters Skeleton */}
+        <div className="flex flex-col md:flex-row gap-4 justify-between">
+          <div className="h-12 w-full md:w-96 bg-neutral-200 rounded-2xl animate-pulse" />
+          <div className="flex space-x-2">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="h-10 w-24 bg-neutral-200 rounded-xl animate-pulse" />
+            ))}
+          </div>
+        </div>
+
+        {/* Grid Skeleton */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+            <div key={i} className="space-y-4">
+              <div className="aspect-square bg-neutral-200 rounded-3xl animate-pulse" />
+              <div className="h-4 w-3/4 bg-neutral-200 rounded animate-pulse" />
+              <div className="h-4 w-1/2 bg-neutral-200 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -209,8 +235,94 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* Keunggulan Kami Section */}
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="grid grid-cols-2 md:grid-cols-4 gap-4"
+      >
+        {[
+          { icon: <Truck className="w-6 h-6" />, title: "Pengiriman Cepat", desc: "Kirim hari yang sama" },
+          { icon: <ShieldCheck className="w-6 h-6" />, title: "Produk Original", desc: "Jaminan kualitas 100%" },
+          { icon: <Zap className="w-6 h-6" />, title: "Harga Terbaik", desc: "Termurah di kelasnya" },
+          { icon: <HeartHandshake className="w-6 h-6" />, title: "Layanan Ramah", desc: "CS siap membantu" }
+        ].map((item, i) => (
+          <div key={i} className="bg-white p-6 rounded-3xl border border-emerald-50 flex flex-col items-center text-center space-y-3 hover:shadow-lg hover:shadow-emerald-100/50 transition-all">
+            <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
+              {item.icon}
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-neutral-900">{item.title}</h4>
+              <p className="text-[10px] text-neutral-500">{item.desc}</p>
+            </div>
+          </div>
+        ))}
+      </motion.section>
+
+      {/* Best Sellers Section */}
+      {bestSellers.length > 0 && searchTerm === '' && selectedCategory === 'Semua' && (
+        <motion.section 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="space-y-6"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-black text-neutral-900 tracking-tight">Produk Terlaris</h2>
+              <p className="text-sm text-neutral-500">Pilihan favorit pelanggan CAHAYA ATK minggu ini.</p>
+            </div>
+            <div className="h-px flex-grow mx-8 bg-neutral-100 hidden md:block" />
+            <span className="px-4 py-1.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-widest rounded-full">
+              Best Sellers
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {bestSellers.map((product, idx) => (
+              <motion.div
+                key={`best-${product.id}`}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                onClick={() => setSelectedProduct(product)}
+                className="group bg-emerald-600 rounded-3xl p-0.5 hover:shadow-2xl hover:shadow-emerald-200 transition-all cursor-pointer"
+              >
+                <div className="bg-white rounded-[1.4rem] overflow-hidden h-full flex flex-col">
+                  <div className="aspect-square relative overflow-hidden bg-neutral-50">
+                    <img 
+                      src={product.image_url || `https://picsum.photos/seed/${product.id}/400/400`} 
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <div className="bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shadow-lg">
+                        #{idx + 1}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4 flex-grow flex flex-col">
+                    <h3 className="font-bold text-sm mb-1 line-clamp-1">{product.name}</h3>
+                    <p className="text-emerald-600 font-black text-sm mt-auto">
+                      Rp {product.price.toLocaleString('id-ID')}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+      )}
+
       {/* Filters & Search */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="flex flex-col md:flex-row gap-4 items-center justify-between pt-8 border-t border-neutral-100"
+      >
         <div className="relative w-full md:w-96 group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 w-5 h-5 transition-colors group-focus-within:text-emerald-600" />
           <input 
@@ -237,22 +349,28 @@ export const Home: React.FC = () => {
             </button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Product Grid */}
-      {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          {filteredProducts.map((product, idx) => (
-            <motion.div 
-              key={product.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ y: -5 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ delay: idx * 0.05 }}
-              onClick={() => setSelectedProduct(product)}
-              className="group bg-white rounded-3xl border border-emerald-50 overflow-hidden hover:shadow-xl hover:shadow-emerald-100/50 transition-all duration-300 cursor-pointer flex flex-col"
-            >
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        {filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+            {filteredProducts.map((product, idx) => (
+              <motion.div 
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.05 }}
+                whileHover={{ y: -5 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setSelectedProduct(product)}
+                className="group bg-white rounded-3xl border border-emerald-50 overflow-hidden hover:shadow-xl hover:shadow-emerald-100/50 transition-all duration-300 cursor-pointer flex flex-col"
+              >
               <div className="aspect-square overflow-hidden bg-neutral-100 relative">
                 <img 
                   src={product.image_url || `https://picsum.photos/seed/${product.id}/400/400`} 
@@ -319,6 +437,7 @@ export const Home: React.FC = () => {
           <p className="text-neutral-500">Coba gunakan kata kunci lain atau filter kategori yang berbeda.</p>
         </div>
       )}
+      </motion.div>
       {/* Product Detail Modal */}
       <AnimatePresence>
         {selectedProduct && (
@@ -368,9 +487,11 @@ export const Home: React.FC = () => {
                 <div className="space-y-4 mb-8 flex-grow">
                   <div>
                     <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Deskripsi Produk</h4>
-                    <p className="text-neutral-600 text-sm leading-relaxed">
-                      {selectedProduct.description}
-                    </p>
+                    <div className="text-neutral-600 text-sm leading-relaxed prose prose-sm prose-emerald max-w-none prose-p:my-0 prose-ol:my-1 prose-li:my-0 prose-ul:my-1">
+                      <Markdown>
+                        {selectedProduct.description?.replace(/(^|[^a-zA-Z\n])(\d+\.)/g, (match, p1, p2) => p1 ? `${p1}\n${p2}` : p2) || ''}
+                      </Markdown>
+                    </div>
                   </div>
                   
                   <div className="flex items-center space-x-4 p-4 bg-emerald-50/5 rounded-2xl border border-neutral-100">
