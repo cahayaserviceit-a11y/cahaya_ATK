@@ -187,9 +187,18 @@ export const Layout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="text-white w-5 h-5" />
+            <Link to="/" className="flex items-center space-x-2 group">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+                <img 
+                  src="/logo.svg" 
+                  alt="Cahaya ATK Logo" 
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    // Fallback if logo.svg doesn't exist yet
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-emerald-600 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>';
+                  }}
+                />
               </div>
               <span className="text-xl font-bold tracking-tight">CAHAYA ATK</span>
             </Link>
@@ -355,9 +364,17 @@ export const Layout: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             {/* Brand Section */}
             <div className="space-y-6">
-              <Link to="/" className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-100">
-                  <BookOpen className="text-white w-6 h-6" />
+              <Link to="/" className="flex items-center space-x-3 group">
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-100/50 overflow-hidden transition-transform group-hover:scale-105">
+                  <img 
+                    src="/logo.svg" 
+                    alt="Cahaya ATK Logo" 
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-emerald-600 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>';
+                    }}
+                  />
                 </div>
                 <span className="text-2xl font-black tracking-tighter">CAHAYA ATK</span>
               </Link>
