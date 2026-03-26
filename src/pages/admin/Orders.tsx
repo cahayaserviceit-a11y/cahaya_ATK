@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Order } from '../../types';
-import { ShoppingBag, ChevronDown, CheckCircle, Clock, Truck, XCircle, Trash2, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, ChevronDown, CheckCircle, Clock, Truck, XCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
@@ -60,7 +60,7 @@ export const AdminOrders: React.FC = () => {
   };
 
   const deleteOrder = async (orderId: string) => {
-    const isConfirmed = window.confirm('⚠️ KONFIRMASI PENGHAPUSAN\n\nApakah Anda yakin ingin menghapus pesanan ini secara permanen? Data pendapatan mungkin akan terpengaruh jika pesanan ini sudah selesai.');
+    const isConfirmed = window.confirm('KONFIRMASI PENGHAPUSAN\n\nApakah Anda yakin ingin menghapus pesanan ini secara permanen? Data pendapatan mungkin akan terpengaruh jika pesanan ini sudah selesai.');
     if (!isConfirmed) return;
 
     const toastId = toast.loading('Menghapus pesanan...');
@@ -154,10 +154,10 @@ export const AdminOrders: React.FC = () => {
 
                   <button 
                     onClick={(e) => { e.stopPropagation(); deleteOrder(order.id); }}
-                    className="p-1.5 sm:p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                    className="p-1.5 sm:p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all text-[10px] sm:text-xs font-bold"
                     title="Hapus Pesanan"
                   >
-                    <Trash2 className="w-4 h-4 sm:w-5 h-5" />
+                    <span>Hapus</span>
                   </button>
 
                   <ChevronDown className={`w-4 h-4 sm:w-5 h-5 text-neutral-300 transition-transform ${expandedOrder === order.id ? 'rotate-180' : ''}`} />

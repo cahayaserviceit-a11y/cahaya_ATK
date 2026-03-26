@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
-import { User, MapPin, Phone, FileText, Camera, Save, ArrowLeft, Trash2, Upload } from 'lucide-react';
+import { User, MapPin, Phone, FileText, Camera, Save, ArrowLeft, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const Settings: React.FC = () => {
@@ -52,7 +52,7 @@ export const Settings: React.FC = () => {
 
       if (error) throw error;
       await refreshProfile();
-      toast.success('Profil berhasil diperbarui! ✨');
+      toast.success('Profil berhasil diperbarui!');
     } catch (error: any) {
       toast.error('Gagal memperbarui profil: ' + error.message);
     } finally {
@@ -101,7 +101,7 @@ export const Settings: React.FC = () => {
       if (updateError) throw updateError;
       
       await refreshProfile();
-      toast.success('Foto profil berhasil diunggah! 📸');
+      toast.success('Foto profil berhasil diunggah!');
     } catch (error: any) {
       toast.error('Gagal mengunggah foto: ' + error.message);
     } finally {
@@ -140,7 +140,7 @@ export const Settings: React.FC = () => {
 
       setFormData({ ...formData, avatar_url: '' });
       await refreshProfile();
-      toast.success('Foto profil berhasil dihapus! 🗑️');
+      toast.success('Foto profil berhasil dihapus!');
     } catch (error: any) {
       toast.error('Gagal menghapus foto: ' + error.message);
     } finally {
@@ -230,7 +230,6 @@ export const Settings: React.FC = () => {
                   onClick={() => fileInputRef.current?.click()}
                   className="flex items-center space-x-2 text-xs font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl hover:bg-emerald-100 transition-all"
                 >
-                  <Upload className="w-3 h-3" />
                   <span>Ganti Foto</span>
                 </button>
                 
@@ -240,7 +239,6 @@ export const Settings: React.FC = () => {
                     onClick={handleDeletePhoto}
                     className="flex items-center space-x-2 text-xs font-bold text-red-600 bg-red-50 px-4 py-2 rounded-xl hover:bg-red-100 transition-all"
                   >
-                    <Trash2 className="w-3 h-3" />
                     <span>Hapus Foto</span>
                   </button>
                 )}
@@ -255,7 +253,6 @@ export const Settings: React.FC = () => {
               {/* Full Name */}
               <div className="space-y-2">
                 <label className="text-sm font-bold text-neutral-700 flex items-center space-x-2">
-                  <User className="w-4 h-4" />
                   <span>Nama Lengkap</span>
                 </label>
                 <input 
@@ -271,7 +268,6 @@ export const Settings: React.FC = () => {
               {/* Phone */}
               <div className="space-y-2">
                 <label className="text-sm font-bold text-neutral-700 flex items-center space-x-2">
-                  <Phone className="w-4 h-4" />
                   <span>Nomor WhatsApp</span>
                 </label>
                 <input 
@@ -287,7 +283,6 @@ export const Settings: React.FC = () => {
             {/* Bio */}
             <div className="space-y-2">
               <label className="text-sm font-bold text-neutral-700 flex items-center space-x-2">
-                <FileText className="w-4 h-4" />
                 <span>Biodata Singkat</span>
               </label>
               <textarea 
@@ -302,7 +297,6 @@ export const Settings: React.FC = () => {
             {/* Address */}
             <div className="space-y-2">
               <label className="text-sm font-bold text-neutral-700 flex items-center space-x-2">
-                <MapPin className="w-4 h-4" />
                 <span>Alamat Pengiriman Default</span>
               </label>
               <textarea 
@@ -325,10 +319,7 @@ export const Settings: React.FC = () => {
               {loading ? (
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                <>
-                  <Save className="w-5 h-5" />
-                  <span>Simpan Perubahan</span>
-                </>
+                <span>Simpan Perubahan</span>
               )}
             </button>
           </form>

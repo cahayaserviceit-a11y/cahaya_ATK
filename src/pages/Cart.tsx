@@ -3,7 +3,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, CreditCard, MapPin, Phone, Wallet } from 'lucide-react';
+import { Plus, Minus, ShoppingBag, ArrowRight, CreditCard, MapPin, Phone, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 
@@ -171,9 +171,9 @@ export const Cart: React.FC = () => {
             </div>
             <button 
               onClick={() => removeFromCart(item.id)}
-              className="p-2 text-neutral-300 hover:text-red-500 transition-colors"
+              className="p-2 text-neutral-300 hover:text-red-500 transition-colors text-xs font-bold"
             >
-              <Trash2 className="w-5 h-5" />
+              <span>Hapus</span>
             </button>
           </motion.div>
         ))}

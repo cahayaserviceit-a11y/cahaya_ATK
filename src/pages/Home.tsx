@@ -39,6 +39,78 @@ export const Home: React.FC = () => {
     };
   }, []);
 
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  const banners = [
+    {
+      title: "Lengkapi Kebutuhan Kantor & Sekolah Anda",
+      description: "Kualitas terbaik, harga bersahabat, pelayanan cepat. Hanya di CAHAYA ATK.",
+      image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=2000&auto=format&fit=crop",
+      accent: "Kantor & Sekolah"
+    },
+    {
+      title: "Promo Spesial Alat Tulis Kantor",
+      description: "Dapatkan diskon menarik untuk pembelian grosir. Stok terbatas!",
+      image: "https://images.unsplash.com/photo-1456735190827-d1262f71b8a3?q=80&w=2000&auto=format&fit=crop",
+      accent: "Alat Tulis"
+    },
+    {
+      title: "Kualitas Terbaik untuk Prestasi Anda",
+      description: "Menyediakan berbagai macam perlengkapan sekolah terlengkap.",
+      image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2000&auto=format&fit=crop",
+      accent: "Prestasi Anda"
+    },
+    {
+      title: "Koleksi Seni & Melukis Terlengkap",
+      description: "Ekspresikan kreativitas Anda dengan peralatan seni berkualitas tinggi.",
+      image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=2000&auto=format&fit=crop",
+      accent: "Seni & Melukis"
+    },
+    {
+      title: "Buku Tulis & Kertas Kualitas Premium",
+      description: "Berbagai pilihan kertas dan buku tulis untuk segala kebutuhan Anda.",
+      image: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=2000&auto=format&fit=crop",
+      accent: "Kualitas Premium"
+    },
+    {
+      title: "Aksesoris Meja Kerja Modern",
+      description: "Buat ruang kerja Anda lebih rapi dan produktif dengan aksesoris kami.",
+      image: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?q=80&w=2000&auto=format&fit=crop",
+      accent: "Meja Kerja"
+    },
+    {
+      title: "Tas & Kotak Pensil Stylish",
+      description: "Tampil keren ke sekolah atau kantor dengan koleksi tas terbaru.",
+      image: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=2000&auto=format&fit=crop",
+      accent: "Stylish"
+    },
+    {
+      title: "Peralatan Kantor Esensial",
+      description: "Stapler, klip, hingga penggaris, semua tersedia lengkap di sini.",
+      image: "https://images.unsplash.com/photo-1519337265831-281ec6cc8514?q=80&w=2000&auto=format&fit=crop",
+      accent: "Peralatan Kantor"
+    },
+    {
+      title: "Kebutuhan Kuliah & Mahasiswa",
+      description: "Persiapkan semester baru Anda dengan perlengkapan kuliah terbaik.",
+      image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=2000&auto=format&fit=crop",
+      accent: "Kuliah & Mahasiswa"
+    },
+    {
+      title: "Produk Eksklusif Cahaya ATK",
+      description: "Temukan produk-produk pilihan yang hanya ada di toko kami.",
+      image: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=2000&auto=format&fit=crop",
+      accent: "Eksklusif"
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 2500);
+    return () => clearInterval(timer);
+  }, []);
+
   const fetchProducts = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
@@ -80,34 +152,60 @@ export const Home: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Hero Section */}
-      <section className="relative h-[250px] sm:h-[350px] rounded-3xl overflow-hidden bg-neutral-900 text-white flex items-center px-6 sm:px-12">
-        <div className="absolute inset-0">
-          <img 
-            src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=2000&auto=format&fit=crop" 
-            alt="Hero" 
-            className="w-full h-full object-cover opacity-60"
-            referrerPolicy="no-referrer"
-            loading="eager"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-neutral-900/80 to-transparent" />
-        </div>
-        <div className="relative z-10 max-w-2xl">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl sm:text-5xl font-bold mb-4 tracking-tight"
+      {/* Hero Section / Banner Slider */}
+      <section className="relative h-[250px] sm:h-[350px] rounded-3xl overflow-hidden bg-neutral-900 text-white flex items-center">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentBanner}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0 flex items-center px-6 sm:px-12"
           >
-            Lengkapi Kebutuhan <span className="text-emerald-400">Kantor & Sekolah</span> Anda
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-neutral-300 mb-6"
-          >
-            Kualitas terbaik, harga bersahabat, pelayanan cepat. Hanya di CAHAYA ATK.
-          </motion.p>
+            <div className="absolute inset-0">
+              <img 
+                src={banners[currentBanner].image} 
+                alt="Hero" 
+                className="w-full h-full object-cover opacity-70"
+                referrerPolicy="no-referrer"
+                loading="eager"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-neutral-900/80 to-transparent" />
+            </div>
+            <div className="relative z-10 max-w-2xl">
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-3xl sm:text-5xl font-bold mb-4 tracking-tight leading-tight"
+              >
+                {banners[currentBanner].title.split(banners[currentBanner].accent)[0]}
+                <span className="text-emerald-400">{banners[currentBanner].accent}</span>
+                {banners[currentBanner].title.split(banners[currentBanner].accent)[1]}
+              </motion.h1>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-sm sm:text-lg text-neutral-300 mb-6"
+              >
+                {banners[currentBanner].description}
+              </motion.p>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+        
+        {/* Indicators */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
+          {banners.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentBanner(idx)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                currentBanner === idx ? 'bg-emerald-500 w-6' : 'bg-white/50'
+              }`}
+            />
+          ))}
         </div>
       </section>
 
