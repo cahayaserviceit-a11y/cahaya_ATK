@@ -188,10 +188,10 @@ export const Layout: React.FC = () => {
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+              <div className="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center shadow-sm">
                 <BookOpen className="text-white w-5 h-5" />
               </div>
-              <span className="text-xl font-bold tracking-tight">CAHAYA ATK</span>
+              <span className="text-xl font-bold tracking-tight text-neutral-900">Cahaya ATK</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -356,10 +356,10 @@ export const Layout: React.FC = () => {
             {/* Brand Section */}
             <div className="space-y-6">
               <Link to="/" className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-100">
-                  <BookOpen className="text-white w-6 h-6" />
+                <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-100">
+                  <BookOpen className="text-white w-7 h-7" />
                 </div>
-                <span className="text-2xl font-black tracking-tighter">CAHAYA ATK</span>
+                <span className="text-2xl font-black tracking-tighter text-neutral-900">Cahaya ATK</span>
               </Link>
               <p className="text-neutral-500 text-sm leading-relaxed">
                 Pusat perlengkapan alat tulis kantor dan sekolah terlengkap di Balegondo. Kami berkomitmen memberikan kualitas terbaik dengan harga yang kompetitif.
@@ -455,7 +455,7 @@ export const Layout: React.FC = () => {
           {/* Bottom Bar */}
           <div className="pt-8 border-t border-neutral-100 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-xs text-neutral-400 font-medium">
-              &copy; {new Date().getFullYear()} CAHAYA ATK. All rights reserved.
+              &copy; {new Date().getFullYear()} Cahaya ATK. All rights reserved.
             </p>
             <div className="flex items-center space-x-6">
               <a href="#" className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest hover:text-emerald-600 transition-colors">Privacy Policy</a>

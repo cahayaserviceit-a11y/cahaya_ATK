@@ -86,7 +86,7 @@ export const Orders: React.FC = () => {
       doc.setFontSize(24);
       doc.setTextColor(16, 185, 129); // Emerald 600
       doc.setFont(undefined, 'bold');
-      doc.text('CAHAYA ATK', pageWidth / 2, 20, { align: 'center' });
+      doc.text('Cahaya ATK', pageWidth / 2, 20, { align: 'center' });
       
       doc.setFontSize(14);
       doc.setTextColor(0);
@@ -116,7 +116,7 @@ export const Orders: React.FC = () => {
       doc.setFont(undefined, 'bold');
       doc.text('Nama Penjual:', 130, 48);
       doc.setFont(undefined, 'normal');
-      doc.text('CAHAYA ATK', 160, 48);
+      doc.text('Cahaya ATK', 160, 48);
       
       // 3. Order Summary Row
       doc.setFontSize(9);
@@ -206,7 +206,7 @@ export const Orders: React.FC = () => {
       doc.setFontSize(8);
       doc.setFont(undefined, 'normal');
       doc.setTextColor(100);
-      doc.text('CAHAYA ATK - Solusi Alat Tulis Kantor & Sekolah', 14, doc.internal.pageSize.height - 30);
+      doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', 14, doc.internal.pageSize.height - 30);
       doc.text('Jl. Sultan Agung, RT.3/RW.2, Balegondo, Ngariiboyo, Magetan', 14, doc.internal.pageSize.height - 25);
       doc.text('NPWP: 00.000.000.0-000.000', 14, doc.internal.pageSize.height - 20);
       

@@ -38,7 +38,7 @@ export const Login: React.FC = () => {
             <LogIn className="w-8 h-8" />
           </div>
           <h1 className="text-3xl font-bold text-neutral-900">Selamat Datang</h1>
-          <p className="text-neutral-500 mt-2">Masuk ke akun ATK CAHAYA Anda</p>
+          <p className="text-neutral-500 mt-2">Masuk ke akun Cahaya ATK Anda</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">

@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { FileOpener } from '@capacitor-community/file-opener';
 
 export const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState({
@@ -129,20 +130,31 @@ export const AdminDashboard: React.FC = () => {
       if (Capacitor.isNativePlatform()) {
         const pdfBase64 = doc.output('datauristring').split(',')[1];
         
+        // 1. Simpan secara PERMANEN di folder Documents/CahayaATK
         const savedFile = await Filesystem.writeFile({
-          path: fileName,
+          path: `CahayaATK/${fileName}`,
           data: pdfBase64,
           directory: Directory.Documents,
+          recursive: true
         });
 
-        await Share.share({
-          title: 'Laporan Penjualan Cahaya ATK',
-          text: 'Berikut adalah laporan penjualan terbaru.',
-          url: savedFile.uri,
-          dialogTitle: 'Bagikan Laporan PDF',
-        });
-        
-        toast.success('Laporan berhasil disimpan dan siap dibagikan', { id: toastId });
+        // 2. LANGSUNG BUKA filenya agar otomatis terbuka di HP
+        try {
+          await FileOpener.open({
+            filePath: savedFile.uri,
+            contentType: 'application/pdf',
+          });
+          toast.success('Laporan tersimpan di Documents/CahayaATK dan sedang dibuka', { id: toastId });
+        } catch (openError) {
+          // Jika gagal buka otomatis, tawarkan opsi bagikan sebagai cadangan
+          await Share.share({
+            title: 'Laporan Penjualan Cahaya ATK',
+            text: 'Berikut adalah laporan penjualan terbaru.',
+            url: savedFile.uri,
+            dialogTitle: 'Bagikan Laporan PDF',
+          });
+          toast.success('Laporan tersimpan di Documents/CahayaATK', { id: toastId });
+        }
       } else {
         doc.save(fileName);
         toast.success('Laporan berhasil diunduh', { id: toastId });

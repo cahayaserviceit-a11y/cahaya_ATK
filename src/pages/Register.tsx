@@ -54,7 +54,7 @@ export const Register: React.FC = () => {
             <UserPlus className="w-8 h-8" />
           </div>
           <h1 className="text-3xl font-bold text-neutral-900">Buat Akun</h1>
-          <p className="text-neutral-500 mt-2">Bergabung dengan komunitas ATK CAHAYA</p>
+          <p className="text-neutral-500 mt-2">Bergabung dengan komunitas Cahaya ATK</p>
         </div>
 
         <form onSubmit={handleRegister} className="space-y-6">

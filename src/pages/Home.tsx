@@ -48,7 +48,7 @@ export const Home: React.FC = () => {
   const banners = [
     {
       title: "Lengkapi Kebutuhan Kantor & Sekolah Anda",
-      description: "Kualitas terbaik, harga bersahabat, pelayanan cepat. Hanya di CAHAYA ATK.",
+      description: "Kualitas terbaik, harga bersahabat, pelayanan cepat. Hanya di Cahaya ATK.",
       image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=2000&auto=format&fit=crop",
       accent: "Kantor & Sekolah"
     },
@@ -271,7 +271,7 @@ export const Home: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-black text-neutral-900 tracking-tight">Produk Terlaris</h2>
-              <p className="text-sm text-neutral-500">Pilihan favorit pelanggan CAHAYA ATK minggu ini.</p>
+              <p className="text-sm text-neutral-500">Pilihan favorit pelanggan Cahaya ATK minggu ini.</p>
             </div>
             <div className="h-px flex-grow mx-8 bg-neutral-100 hidden md:block" />
             <span className="px-4 py-1.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-widest rounded-full">
