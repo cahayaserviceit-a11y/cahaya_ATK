@@ -134,38 +134,38 @@ export const AdminDashboard: React.FC = () => {
           : rawBase64;
 
         try {
-          // 1. KITA PAKSA SIMPAN KE FOLDER DOCUMENTS
-          // Kita buat folder khusus 'CahayaATK' agar rapi
+          // KUNCINYA DI SINI: Gunakan Directory.Documents
           const savedFile = await Filesystem.writeFile({
-            path: `CahayaATK/${fileName}`, 
+            path: `CahayaATK/${fileName}`, // Akan buat folder CahayaATK di dalam Documents
             data: cleanBase64,
-            directory: Directory.Documents, // Ini jalur resmi ke memori HP
-            recursive: true // Otomatis buat folder CahayaATK kalau belum ada
+            directory: Directory.Documents,
+            recursive: true 
           });
 
-          // 2. LANGSUNG BUKA BIAR BAPAK BISA CEK ISINYA
+          // Langsung buka agar Bapak bisa lihat hasilnya
           await FileOpener.open({
             filePath: savedFile.uri,
             contentType: 'application/pdf',
           });
           
-          toast.success('Berhasil! File ada di folder Documents/CahayaATK', { id: toastId });
+          toast.success('Laporan tersimpan di folder Documents/CahayaATK', { id: toastId });
         } catch (e) {
-          console.error('Gagal simpan langsung:', e);
-          // Jika gagal karena izin atau sub-folder, kita coba jalur cadangan ke Documents tanpa sub-folder
+          console.error('Gagal simpan ke Documents:', e);
+          // Jika folder Documents masih diproteksi, gunakan Cache sebagai cadangan
           try {
-            const fallbackFile = await Filesystem.writeFile({
+            const cacheFile = await Filesystem.writeFile({
               path: fileName,
               data: cleanBase64,
-              directory: Directory.Documents,
+              directory: Directory.Cache
             });
             
             await FileOpener.open({
-              filePath: fallbackFile.uri,
+              filePath: cacheFile.uri,
               contentType: 'application/pdf',
             });
-            toast.success('Laporan tersimpan di folder Documents', { id: toastId });
-          } catch (fallbackError) {
+            
+            toast.success('Laporan berhasil dibuka!', { id: toastId });
+          } catch (err) {
             // Cadangan terakhir: Bagikan file
             const cacheFile = await Filesystem.writeFile({
               path: fileName,
@@ -176,7 +176,7 @@ export const AdminDashboard: React.FC = () => {
               title: 'Laporan Penjualan',
               url: cacheFile.uri
             });
-            toast.success('Laporan siap dibagikan', { id: toastId });
+            toast.success('Gunakan menu bagikan untuk menyimpan PDF', { id: toastId });
           }
         }
       } else {
