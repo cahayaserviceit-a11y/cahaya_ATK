@@ -128,32 +128,56 @@ export const AdminDashboard: React.FC = () => {
       const fileName = `Laporan_Penjualan_${new Date().toISOString().split('T')[0]}.pdf`;
 
       if (Capacitor.isNativePlatform()) {
-        const pdfBase64 = doc.output('datauristring').split(',')[1];
-        
-        // 1. Simpan secara PERMANEN di folder Documents/CahayaATK
-        const savedFile = await Filesystem.writeFile({
-          path: `CahayaATK/${fileName}`,
-          data: pdfBase64,
-          directory: Directory.Documents,
-          recursive: true
-        });
+        const rawBase64 = doc.output('datauristring');
+        const cleanBase64 = rawBase64.includes('base64,') 
+          ? rawBase64.split('base64,')[1] 
+          : rawBase64;
 
-        // 2. LANGSUNG BUKA filenya agar otomatis terbuka di HP
         try {
+          // 1. KITA PAKSA SIMPAN KE FOLDER DOCUMENTS
+          // Kita buat folder khusus 'CahayaATK' agar rapi
+          const savedFile = await Filesystem.writeFile({
+            path: `CahayaATK/${fileName}`, 
+            data: cleanBase64,
+            directory: Directory.Documents, // Ini jalur resmi ke memori HP
+            recursive: true // Otomatis buat folder CahayaATK kalau belum ada
+          });
+
+          // 2. LANGSUNG BUKA BIAR BAPAK BISA CEK ISINYA
           await FileOpener.open({
             filePath: savedFile.uri,
             contentType: 'application/pdf',
           });
-          toast.success('Laporan tersimpan di Documents/CahayaATK dan sedang dibuka', { id: toastId });
-        } catch (openError) {
-          // Jika gagal buka otomatis, tawarkan opsi bagikan sebagai cadangan
-          await Share.share({
-            title: 'Laporan Penjualan Cahaya ATK',
-            text: 'Berikut adalah laporan penjualan terbaru.',
-            url: savedFile.uri,
-            dialogTitle: 'Bagikan Laporan PDF',
-          });
-          toast.success('Laporan tersimpan di Documents/CahayaATK', { id: toastId });
+          
+          toast.success('Berhasil! File ada di folder Documents/CahayaATK', { id: toastId });
+        } catch (e) {
+          console.error('Gagal simpan langsung:', e);
+          // Jika gagal karena izin atau sub-folder, kita coba jalur cadangan ke Documents tanpa sub-folder
+          try {
+            const fallbackFile = await Filesystem.writeFile({
+              path: fileName,
+              data: cleanBase64,
+              directory: Directory.Documents,
+            });
+            
+            await FileOpener.open({
+              filePath: fallbackFile.uri,
+              contentType: 'application/pdf',
+            });
+            toast.success('Laporan tersimpan di folder Documents', { id: toastId });
+          } catch (fallbackError) {
+            // Cadangan terakhir: Bagikan file
+            const cacheFile = await Filesystem.writeFile({
+              path: fileName,
+              data: cleanBase64,
+              directory: Directory.Cache
+            });
+            await Share.share({
+              title: 'Laporan Penjualan',
+              url: cacheFile.uri
+            });
+            toast.success('Laporan siap dibagikan', { id: toastId });
+          }
         }
       } else {
         doc.save(fileName);
