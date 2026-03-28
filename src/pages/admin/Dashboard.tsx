@@ -128,57 +128,35 @@ export const AdminDashboard: React.FC = () => {
       const fileName = `Laporan_Penjualan_${new Date().toISOString().split('T')[0]}.pdf`;
 
       if (Capacitor.isNativePlatform()) {
-        const rawBase64 = doc.output('datauristring');
-        const cleanBase64 = rawBase64.includes('base64,') 
-          ? rawBase64.split('base64,')[1] 
-          : rawBase64;
-
-        try {
-          // KUNCINYA DI SINI: Gunakan Directory.Documents
-          const savedFile = await Filesystem.writeFile({
-            path: `CahayaATK/${fileName}`, // Akan buat folder CahayaATK di dalam Documents
-            data: cleanBase64,
-            directory: Directory.Documents,
-            recursive: true 
-          });
-
-          // Langsung buka agar Bapak bisa lihat hasilnya
-          await FileOpener.open({
-            filePath: savedFile.uri,
-            contentType: 'application/pdf',
-          });
-          
-          toast.success('Laporan tersimpan di folder Documents/CahayaATK', { id: toastId });
-        } catch (e) {
-          console.error('Gagal simpan ke Documents:', e);
-          // Jika folder Documents masih diproteksi, gunakan Cache sebagai cadangan
+        const pdfBlob = doc.output('blob');
+        const reader = new FileReader();
+        
+        reader.onloadend = async () => {
           try {
-            const cacheFile = await Filesystem.writeFile({
-              path: fileName,
-              data: cleanBase64,
-              directory: Directory.Cache
+            const base64Data = (reader.result as string).split(',')[1];
+
+            // 2. Simpan secara PERMANEN di folder Documents
+            const savedFile = await Filesystem.writeFile({
+              path: `CahayaATK/${fileName}`,
+              data: base64Data,
+              directory: Directory.Documents,
+              recursive: true
             });
-            
+
+            // 3. LANGSUNG BUKA filenya otomatis
             await FileOpener.open({
-              filePath: cacheFile.uri,
-              contentType: 'application/pdf',
+              filePath: savedFile.uri,
+              contentType: 'application/pdf'
             });
             
-            toast.success('Laporan berhasil dibuka!', { id: toastId });
-          } catch (err) {
-            // Cadangan terakhir: Bagikan file
-            const cacheFile = await Filesystem.writeFile({
-              path: fileName,
-              data: cleanBase64,
-              directory: Directory.Cache
-            });
-            await Share.share({
-              title: 'Laporan Penjualan',
-              url: cacheFile.uri
-            });
-            toast.success('Gunakan menu bagikan untuk menyimpan PDF', { id: toastId });
+            toast.success('Laporan tersimpan di folder Documents/CahayaATK', { id: toastId });
+          } catch (e) {
+            console.error("Gagal simpan PDF", e);
+            toast.error("Gagal menyimpan laporan.", { id: toastId });
           }
-        }
+        };
+        
+        reader.readAsDataURL(pdfBlob);
       } else {
         doc.save(fileName);
         toast.success('Laporan berhasil diunduh', { id: toastId });
