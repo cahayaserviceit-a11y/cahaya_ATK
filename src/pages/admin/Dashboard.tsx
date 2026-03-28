@@ -128,35 +128,18 @@ export const AdminDashboard: React.FC = () => {
       const fileName = `Laporan_Penjualan_${new Date().toISOString().split('T')[0]}.pdf`;
 
       if (Capacitor.isNativePlatform()) {
-        const pdfBlob = doc.output('blob');
-        const reader = new FileReader();
+        // Ambil data base64 murni (tanpa prefix data:application/pdf;base64,)
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
         
-        reader.onloadend = async () => {
-          try {
-            const base64Data = (reader.result as string).split(',')[1];
-
-            // 2. Simpan secara PERMANEN di folder Documents
-            const savedFile = await Filesystem.writeFile({
-              path: `CahayaATK/${fileName}`,
-              data: base64Data,
-              directory: Directory.Documents,
-              recursive: true
-            });
-
-            // 3. LANGSUNG BUKA filenya otomatis
-            await FileOpener.open({
-              filePath: savedFile.uri,
-              contentType: 'application/pdf'
-            });
-            
-            toast.success('Laporan tersimpan di folder Documents/CahayaATK', { id: toastId });
-          } catch (e) {
-            console.error("Gagal simpan PDF", e);
-            toast.error("Gagal menyimpan laporan.", { id: toastId });
-          }
-        };
+        // "Melempar" data PDF ke aplikasi pembungkus (Capacitor)
+        window.parent.postMessage({
+          type: 'DOWNLOAD_FILE',
+          data: pdfBase64,
+          fileName: fileName,
+          mimeType: 'application/pdf'
+        }, '*');
         
-        reader.readAsDataURL(pdfBlob);
+        toast.success('Laporan sedang diproses ke memori HP...', { id: toastId });
       } else {
         doc.save(fileName);
         toast.success('Laporan berhasil diunduh', { id: toastId });
