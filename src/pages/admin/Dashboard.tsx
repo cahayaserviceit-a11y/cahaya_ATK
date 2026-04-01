@@ -35,8 +35,21 @@ export const AdminDashboard: React.FC = () => {
   }, []);
 
   const fetchCustomers = async () => {
-    const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
-    setCustomers(data || []);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching customers:', error);
+        return;
+      }
+      
+      setCustomers(data || []);
+    } catch (err) {
+      console.error('Unexpected error fetching customers:', err);
+    }
   };
 
   const fetchStats = async () => {
@@ -44,8 +57,11 @@ export const AdminDashboard: React.FC = () => {
       const [products, orders, profiles] = await Promise.all([
         supabase.from('products').select('*', { count: 'exact', head: true }),
         supabase.from('orders').select('*'),
-        supabase.from('profiles').select('*', { count: 'exact', head: true })
+        supabase.from('profiles').select('*', { count: 'exact' })
       ]);
+
+      if (profiles.error) console.error('Error fetching profiles count:', profiles.error);
+      if (orders.error) console.error('Error fetching orders:', orders.error);
 
       const revenue = orders.data?.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + o.total_amount, 0) || 0;
 
@@ -53,7 +69,7 @@ export const AdminDashboard: React.FC = () => {
         totalProducts: products.count || 0,
         totalOrders: orders.data?.length || 0,
         totalRevenue: revenue,
-        totalUsers: profiles.count || 0
+        totalUsers: profiles.count || profiles.data?.length || 0
       });
 
       // Fetch recent orders with items
