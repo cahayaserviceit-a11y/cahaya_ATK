@@ -18,8 +18,7 @@ export const Settings: React.FC = () => {
     phone: '',
     address: '',
     bio: '',
-    avatar_url: '',
-    npwp: ''
+    avatar_url: ''
   });
 
   useEffect(() => {
@@ -29,8 +28,7 @@ export const Settings: React.FC = () => {
         phone: profile.phone || '',
         address: profile.address || '',
         bio: profile.bio || '',
-        avatar_url: profile.avatar_url || '',
-        npwp: profile.npwp || ''
+        avatar_url: profile.avatar_url || ''
       });
     }
   }, [profile]);
@@ -48,8 +46,7 @@ export const Settings: React.FC = () => {
           phone: formData.phone,
           address: formData.address,
           bio: formData.bio,
-          avatar_url: formData.avatar_url,
-          npwp: formData.npwp
+          avatar_url: formData.avatar_url
         })
         .eq('id', user.id);
 
@@ -313,25 +310,6 @@ export const Settings: React.FC = () => {
                 * Alamat ini akan otomatis terisi saat Anda melakukan checkout pesanan.
               </p>
             </div>
-
-            {/* NPWP (Admin Only) */}
-            {profile?.role === 'admin' && (
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-neutral-700 flex items-center space-x-2">
-                  <span>NPWP (Hanya Admin)</span>
-                </label>
-                <input 
-                  type="text" 
-                  className="w-full px-5 py-3 rounded-2xl bg-neutral-50 border border-neutral-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all"
-                  placeholder="Masukkan nomor NPWP Anda"
-                  value={formData.npwp}
-                  onChange={(e) => setFormData({ ...formData, npwp: e.target.value })}
-                />
-                <p className="text-[10px] text-neutral-400 italic">
-                  * NPWP ini akan digunakan pada dokumen Invoice dan Faktur.
-                </p>
-              </div>
-            )}
 
             <button 
               type="submit"
