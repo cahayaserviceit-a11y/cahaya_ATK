@@ -5,8 +5,15 @@ import { ShoppingBag, ChevronDown, CheckCircle, Clock, Truck, XCircle, ArrowLeft
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
+import { generateInvoiceTagihan } from '../../components/orders/documents/InvoiceTagihan';
+import { generateFakturPenjualan } from '../../components/orders/documents/FakturPenjualan';
+import { generateSuratPesanan } from '../../components/orders/documents/SuratPesanan';
+import { generateKwitansiPembayaran } from '../../components/orders/documents/KwitansiPembayaran';
+import { FileText, Download } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export const AdminOrders: React.FC = () => {
+  const { user, profile } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
@@ -75,6 +82,23 @@ export const AdminOrders: React.FC = () => {
       fetchOrders(false);
     } catch (error: any) {
       toast.error('Gagal menyimpan: ' + error.message, { id: toastId });
+    }
+  };
+
+  const handleDownloadDocument = async (order: Order, type: 'invoice' | 'faktur' | 'surat_pesanan' | 'kwitansi') => {
+    switch (type) {
+      case 'invoice':
+        await generateInvoiceTagihan(order, user, profile);
+        break;
+      case 'faktur':
+        await generateFakturPenjualan(order, user, profile);
+        break;
+      case 'surat_pesanan':
+        await generateSuratPesanan(order, user, profile);
+        break;
+      case 'kwitansi':
+        await generateKwitansiPembayaran(order, user, profile);
+        break;
     }
   };
 
@@ -258,6 +282,63 @@ export const AdminOrders: React.FC = () => {
                         </div>
                       </div>
                       
+                      <div className="p-4 bg-emerald-50/5 rounded-2xl border border-emerald-100">
+                        <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-4">Unduh Dokumen</h4>
+                        <div className="grid grid-cols-1 gap-2">
+                          <button 
+                            onClick={() => handleDownloadDocument(order, 'invoice')}
+                            className="flex items-center justify-between p-3 bg-white border border-emerald-100 rounded-xl hover:bg-emerald-50 transition-all group"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-white transition-colors">
+                                <FileText className="w-4 h-4 text-emerald-600" />
+                              </div>
+                              <span className="text-sm font-bold text-neutral-700">Invoice Tagihan</span>
+                            </div>
+                            <Download className="w-4 h-4 text-neutral-300 group-hover:text-emerald-600" />
+                          </button>
+                          
+                          <button 
+                            onClick={() => handleDownloadDocument(order, 'faktur')}
+                            className="flex items-center justify-between p-3 bg-white border border-emerald-100 rounded-xl hover:bg-emerald-50 transition-all group"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-white transition-colors">
+                                <FileText className="w-4 h-4 text-emerald-600" />
+                              </div>
+                              <span className="text-sm font-bold text-neutral-700">Faktur Penjualan</span>
+                            </div>
+                            <Download className="w-4 h-4 text-neutral-300 group-hover:text-emerald-600" />
+                          </button>
+                          
+                          <button 
+                            onClick={() => handleDownloadDocument(order, 'surat_pesanan')}
+                            className="flex items-center justify-between p-3 bg-white border border-emerald-100 rounded-xl hover:bg-emerald-50 transition-all group"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-white transition-colors">
+                                <FileText className="w-4 h-4 text-emerald-600" />
+                              </div>
+                              <span className="text-sm font-bold text-neutral-700">Surat Pesanan</span>
+                            </div>
+                            <Download className="w-4 h-4 text-neutral-300 group-hover:text-emerald-600" />
+                          </button>
+
+                          <button 
+                            onClick={() => handleDownloadDocument(order, 'kwitansi')}
+                            className="flex items-center justify-between p-3 bg-white border border-emerald-100 rounded-xl hover:bg-emerald-50 transition-all group"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-white transition-colors">
+                                <FileText className="w-4 h-4 text-emerald-600" />
+                              </div>
+                              <span className="text-sm font-bold text-neutral-700">Kwitansi Pembayaran</span>
+                            </div>
+                            <Download className="w-4 h-4 text-neutral-300 group-hover:text-emerald-600" />
+                          </button>
+                        </div>
+                      </div>
+
                       <div className="p-4 bg-emerald-50/5 rounded-2xl border border-emerald-100">
                         <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-4">Pengaturan Dokumen (SPJ)</h4>
                         <div className="space-y-4">

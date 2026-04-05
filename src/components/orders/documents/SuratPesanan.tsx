@@ -177,7 +177,7 @@ export const generateSuratPesanan = async (order: Order, user: User | null, prof
     doc.setFontSize(8);
     doc.setFont(undefined, 'normal');
     doc.setTextColor(100);
-    doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', 14, doc.internal.pageSize.height - 15);
+    doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', pageWidth / 2, doc.internal.pageSize.height - 15, { align: 'center' });
     
     const fileName = `Surat_Pesanan_${order.id.slice(0, 8)}.pdf`;
     

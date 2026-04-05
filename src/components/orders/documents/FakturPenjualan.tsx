@@ -173,9 +173,9 @@ export const generateFakturPenjualan = async (order: Order, user: User | null, p
     doc.setFontSize(8);
     doc.setFont(undefined, 'normal');
     doc.setTextColor(100);
-    doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', 14, doc.internal.pageSize.height - 30);
-    doc.text('Jl. Sultan Agung, RT.3/RW.2, Balegondo, Ngariiboyo, Magetan', 14, doc.internal.pageSize.height - 25);
-    doc.text('NPWP: 00.000.000.0-000.000', 14, doc.internal.pageSize.height - 20);
+    doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', pageWidth / 2, doc.internal.pageSize.height - 30, { align: 'center' });
+    doc.text('Jl. Sultan Agung, RT.3/RW.2, Balegondo, Ngariiboyo, Magetan', pageWidth / 2, doc.internal.pageSize.height - 25, { align: 'center' });
+    doc.text('NPWP: 00.000.000.0-000.000', pageWidth / 2, doc.internal.pageSize.height - 20, { align: 'center' });
     
     doc.text('Faktur ini adalah bukti pembayaran yang sah', pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
     
