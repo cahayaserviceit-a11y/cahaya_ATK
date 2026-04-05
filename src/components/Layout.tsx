@@ -2,9 +2,10 @@ import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { App } from '@capacitor/app';
-import { ShoppingCart, User, LogOut, BookOpen, LayoutDashboard, Menu, X, Info, Truck, RotateCcw, Settings, Instagram, Facebook, Mail, Phone, MapPin, CreditCard, Wallet, MessageCircle } from 'lucide-react';
+import { ShoppingCart, User, LogOut, BookOpen, LayoutDashboard, Menu, X, Info, Truck, RotateCcw, Settings, Instagram, Facebook, Mail, Phone, MapPin, CreditCard, Wallet, MessageCircle, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { Maintenance } from '../pages/Maintenance';
 import { Toaster } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -13,14 +14,55 @@ export const Layout: React.FC = () => {
   const { totalItems } = useCart();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [isMaintenance, setIsMaintenance] = React.useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
   const [helpModal, setHelpModal] = React.useState<{ isOpen: boolean; type: 'belanja' | 'pengiriman' | 'retur' | null }>({
     isOpen: false,
     type: null
   });
 
-  // Supabase Keep-Alive: Pings Supabase to prevent project pausing
+  // Supabase Keep-Alive & Maintenance Check
   React.useEffect(() => {
+    const checkMaintenance = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('settings')
+          .select('value')
+          .eq('key', 'maintenance_mode')
+          .single();
+        
+        if (error) {
+          console.error('Error fetching maintenance status:', error);
+          return;
+        }
+
+        if (data) {
+          setIsMaintenance(data.value === 'true');
+        }
+      } catch (err) {
+        console.error('Maintenance check error:', err);
+      }
+    };
+
+    // Real-time listener for maintenance mode
+    const maintenanceSubscription = supabase
+      .channel('maintenance_status')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'settings',
+          filter: 'key=eq.maintenance_mode'
+        },
+        (payload) => {
+          if (payload.new) {
+            setIsMaintenance(payload.new.value === 'true');
+          }
+        }
+      )
+      .subscribe();
+
     const keepAlive = async () => {
       try {
         // Simple query to keep the project active
@@ -34,10 +76,14 @@ export const Layout: React.FC = () => {
 
     // Ping on mount
     keepAlive();
+    checkMaintenance();
 
     // Set up an interval to ping every 2 days (well within the 7-day limit)
     const interval = setInterval(keepAlive, 2 * 24 * 60 * 60 * 1000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      maintenanceSubscription.unsubscribe();
+    };
   }, []);
 
   // Capacitor Back Button Handler
@@ -81,8 +127,20 @@ export const Layout: React.FC = () => {
     }
   };
 
+  if (isMaintenance && !isAdmin) {
+    return <Maintenance />;
+  }
+
   return (
     <div className="min-h-screen bg-emerald-50/5 font-sans text-neutral-900 flex flex-col">
+      {/* Maintenance Banner for Admins */}
+      {isAdmin && isMaintenance && (
+        <div className="bg-orange-600 text-white px-4 py-2 text-center text-xs font-bold flex items-center justify-center space-x-2 animate-pulse">
+          <ShieldAlert className="w-4 h-4" />
+          <span>MODE PEMELIHARAAN AKTIF - Pengguna umum tidak dapat mengakses aplikasi.</span>
+        </div>
+      )}
+
       <Toaster 
         position="bottom-center" 
         expand={false} 

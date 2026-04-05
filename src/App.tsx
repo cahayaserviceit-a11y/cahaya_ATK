@@ -8,6 +8,7 @@ import { Register } from './pages/Register';
 import { Cart } from './pages/Cart';
 import { Orders } from './pages/Orders';
 import { Settings } from './pages/Settings';
+import { FakturPrint } from './pages/FakturPrint';
 import { AdminDashboard } from './pages/admin/Dashboard';
 import { AdminProducts } from './pages/admin/Products';
 import { AdminOrders } from './pages/admin/Orders';
@@ -34,6 +35,7 @@ export default function App() {
               <Route path="cart" element={<Cart />} />
               <Route path="orders" element={<Orders />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="faktur/:id" element={<FakturPrint />} />
               
               {/* Admin Routes */}
               <Route path="admin" element={

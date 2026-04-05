@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Product, Order } from '../../types';
-import { Package, ShoppingBag, Users, TrendingUp, ArrowRight, X, Download, User as UserIcon, Mail, Calendar, ArrowLeft, DollarSign } from 'lucide-react';
+import { Package, ShoppingBag, Users, TrendingUp, ArrowRight, X, Download, User as UserIcon, Mail, Calendar, ArrowLeft, DollarSign, Settings as SettingsIcon, ShieldAlert } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import jsPDF from 'jspdf';
@@ -22,6 +22,7 @@ export const AdminDashboard: React.FC = () => {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isCustomersModalOpen, setIsCustomersModalOpen] = useState(false);
   const [isRevenueModalOpen, setIsRevenueModalOpen] = useState(false);
@@ -30,9 +31,53 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     fetchStats();
     fetchCustomers();
+    fetchMaintenanceStatus();
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const fetchMaintenanceStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'maintenance_mode')
+        .single();
+      
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Key not found, initialize it
+          await supabase.from('settings').insert({ key: 'maintenance_mode', value: 'false' });
+        } else {
+          console.error('Error fetching maintenance status:', error);
+        }
+        return;
+      }
+      
+      setMaintenanceMode(data.value === 'true');
+    } catch (err) {
+      console.error('Unexpected error fetching maintenance status:', err);
+    }
+  };
+
+  const toggleMaintenanceMode = async () => {
+    const newValue = !maintenanceMode;
+    const toastId = toast.loading('Memperbarui status pemeliharaan...');
+    
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .update({ value: String(newValue), updated_at: new Date().toISOString() })
+        .eq('key', 'maintenance_mode');
+      
+      if (error) throw error;
+      
+      setMaintenanceMode(newValue);
+      toast.success(`Mode Pemeliharaan ${newValue ? 'Aktif' : 'Nonaktif'}`, { id: toastId });
+    } catch (err: any) {
+      toast.error('Gagal memperbarui status: ' + err.message, { id: toastId });
+    }
+  };
 
   const fetchCustomers = async () => {
     try {
@@ -429,6 +474,31 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Quick Actions */}
         <div className="space-y-6">
+          {/* Maintenance Mode Toggle */}
+          <div className="bg-orange-50/50 border border-orange-100 p-6 rounded-3xl flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center border border-orange-200">
+                <ShieldAlert className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-neutral-900">Mode Pemeliharaan</h3>
+                <p className="text-xs text-neutral-500">Aktifkan untuk membatasi akses pengguna umum saat pengembangan.</p>
+              </div>
+            </div>
+            <button 
+              onClick={toggleMaintenanceMode}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                maintenanceMode ? 'bg-orange-600' : 'bg-neutral-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  maintenanceMode ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
           <div className="bg-neutral-900 text-white p-8 rounded-3xl relative overflow-hidden">
             <div className="relative z-10">
               <h2 className="text-2xl font-bold mb-2">Kelola Inventaris</h2>

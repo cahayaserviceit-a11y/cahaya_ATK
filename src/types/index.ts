@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'buyer';
+export type UserRole = 'admin' | 'buyer' | 'customer';
 
 export interface Profile {
   id: string;
@@ -9,6 +9,8 @@ export interface Profile {
   bio?: string;
   address?: string;
   phone?: string;
+  npwp?: string;
+  logo_url?: string;
   created_at: string;
 }
 

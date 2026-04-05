@@ -16,27 +16,48 @@ export const Register: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp({ 
+      const { data, error: signUpError } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
           data: {
             full_name: fullName,
-            role: 'buyer' // Default role
+            role: 'buyer',
+            email: email
           }
         }
       });
       
-      if (error) throw error;
+      if (signUpError) {
+        console.error('Full SignUp Error:', signUpError);
+        throw signUpError;
+      }
       
       if (data.user) {
-        // In a real app, Supabase triggers would handle profile creation.
-        // For this demo, we'll assume the trigger exists or we handle it.
-        toast.success('Pendaftaran berhasil! Silakan cek email untuk verifikasi.');
+        // Manually ensure profile entry exists using upsert
+        // This handles cases where the trigger might have failed or partially succeeded
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            full_name: fullName,
+            role: 'buyer',
+            email: email
+          });
+
+        if (profileError) {
+          console.error('Profile Creation Error:', profileError);
+          // We don't throw here to allow the user to at least be registered
+          // They can update their profile later
+        }
+
+        toast.success('Pendaftaran berhasil! Silakan masuk.');
         navigate('/login');
       }
     } catch (error: any) {
-      toast.error('Gagal mendaftar: ' + error.message);
+      console.error('Registration Error Details:', error);
+      const errorMessage = error.message || 'Terjadi kesalahan internal pada database.';
+      toast.error('Gagal mendaftar: ' + errorMessage);
     } finally {
       setLoading(false);
     }

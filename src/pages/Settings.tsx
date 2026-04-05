@@ -10,15 +10,19 @@ export const Settings: React.FC = () => {
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
     address: '',
     bio: '',
-    avatar_url: ''
+    avatar_url: '',
+    npwp: '',
+    logo_url: ''
   });
 
   useEffect(() => {
@@ -28,7 +32,9 @@ export const Settings: React.FC = () => {
         phone: profile.phone || '',
         address: profile.address || '',
         bio: profile.bio || '',
-        avatar_url: profile.avatar_url || ''
+        avatar_url: profile.avatar_url || '',
+        npwp: profile.npwp || '',
+        logo_url: profile.logo_url || ''
       });
     }
   }, [profile]);
@@ -46,7 +52,9 @@ export const Settings: React.FC = () => {
           phone: formData.phone,
           address: formData.address,
           bio: formData.bio,
-          avatar_url: formData.avatar_url
+          avatar_url: formData.avatar_url,
+          npwp: formData.npwp,
+          logo_url: formData.logo_url
         })
         .eq('id', user.id);
 
@@ -109,6 +117,55 @@ export const Settings: React.FC = () => {
     }
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploadingLogo(true);
+      if (!user || !e.target.files || e.target.files.length === 0) return;
+
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/logo_${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // 1. Delete old logo if exists
+      if (formData.logo_url) {
+        const oldPath = formData.logo_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage.from('avatars').remove([`${user.id}/${oldPath}`]);
+        }
+      }
+
+      // 2. Upload new logo
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // 3. Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // 4. Update local state and DB
+      setFormData({ ...formData, logo_url: publicUrl });
+      
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ logo_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+      
+      await refreshProfile();
+      toast.success('Logo toko berhasil diunggah!');
+    } catch (error: any) {
+      toast.error('Gagal mengunggah logo: ' + error.message);
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
   const handleDeletePhoto = async () => {
     if (!user || !formData.avatar_url) return;
 
@@ -145,6 +202,45 @@ export const Settings: React.FC = () => {
       toast.error('Gagal menghapus foto: ' + error.message);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleDeleteLogo = async () => {
+    if (!user || !formData.logo_url) return;
+
+    const confirmDelete = window.confirm('Apakah Anda yakin ingin menghapus logo toko?');
+    if (!confirmDelete) return;
+
+    try {
+      setUploadingLogo(true);
+      
+      // 1. Extract path from URL
+      const urlParts = formData.logo_url.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      const filePath = `${user.id}/${fileName}`;
+
+      // 2. Remove from Storage
+      const { error: storageError } = await supabase.storage
+        .from('avatars')
+        .remove([filePath]);
+
+      if (storageError) throw storageError;
+
+      // 3. Update Database
+      const { error: dbError } = await supabase
+        .from('profiles')
+        .update({ logo_url: null })
+        .eq('id', user.id);
+
+      if (dbError) throw dbError;
+
+      setFormData({ ...formData, logo_url: '' });
+      await refreshProfile();
+      toast.success('Logo toko berhasil dihapus!');
+    } catch (error: any) {
+      toast.error('Gagal menghapus logo: ' + error.message);
+    } finally {
+      setUploadingLogo(false);
     }
   };
 
@@ -249,6 +345,73 @@ export const Settings: React.FC = () => {
               </p>
             </div>
 
+            {/* Store Logo Section (Admin Only) */}
+            {profile?.role === 'admin' && (
+              <div className="p-6 bg-emerald-50/50 rounded-3xl border border-emerald-100/50 mb-8">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-emerald-900">Logo Toko</h3>
+                    <p className="text-[10px] text-emerald-600 uppercase tracking-wider font-medium">Digunakan pada dokumen transaksi</p>
+                  </div>
+                  <Upload className="w-5 h-5 text-emerald-400" />
+                </div>
+                
+                <div className="flex items-center space-x-6">
+                  <div className="w-24 h-24 rounded-2xl bg-white flex items-center justify-center overflow-hidden border-2 border-emerald-100 shadow-sm relative">
+                    {formData.logo_url ? (
+                      <img 
+                        src={formData.logo_url} 
+                        alt="Store Logo" 
+                        className="w-full h-full object-contain p-2"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <FileText className="w-10 h-10 text-emerald-100" />
+                    )}
+                    
+                    {uploadingLogo && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      <button 
+                        type="button"
+                        onClick={() => logoInputRef.current?.click()}
+                        className="text-xs font-bold bg-neutral-900 text-white px-4 py-2 rounded-xl hover:bg-emerald-600 transition-all"
+                      >
+                        Unggah Logo
+                      </button>
+                      
+                      {formData.logo_url && (
+                        <button 
+                          type="button"
+                          onClick={handleDeleteLogo}
+                          className="text-xs font-bold bg-white text-red-600 border border-red-100 px-4 py-2 rounded-xl hover:bg-red-50 transition-all"
+                        >
+                          Hapus
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-neutral-400 italic">
+                      * Logo ini akan muncul di bagian atas Invoice, Faktur, dan Surat Pesanan.
+                    </p>
+                  </div>
+                </div>
+
+                <input 
+                  type="file" 
+                  ref={logoInputRef}
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                />
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Full Name */}
               <div className="space-y-2">
@@ -310,6 +473,25 @@ export const Settings: React.FC = () => {
                 * Alamat ini akan otomatis terisi saat Anda melakukan checkout pesanan.
               </p>
             </div>
+
+            {/* NPWP (Admin Only) */}
+            {profile?.role === 'admin' && (
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-neutral-700 flex items-center space-x-2">
+                  <span>NPWP (Hanya Admin)</span>
+                </label>
+                <input 
+                  type="text" 
+                  className="w-full px-5 py-3 rounded-2xl bg-neutral-50 border border-neutral-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all"
+                  placeholder="Masukkan nomor NPWP Anda"
+                  value={formData.npwp}
+                  onChange={(e) => setFormData({ ...formData, npwp: e.target.value })}
+                />
+                <p className="text-[10px] text-neutral-400 italic">
+                  * NPWP ini akan digunakan pada dokumen Invoice dan Faktur.
+                </p>
+              </div>
+            )}
 
             <button 
               type="submit"

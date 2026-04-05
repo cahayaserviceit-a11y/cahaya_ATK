@@ -6,14 +6,12 @@ import { ShoppingBag, Clock, CheckCircle, Truck, XCircle, Package, ArrowRight, M
 import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { Capacitor } from '@capacitor/core';
-import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
+import { generateInvoiceTagihan } from '../components/orders/documents/InvoiceTagihan';
+import { generateFakturPenjualan } from '../components/orders/documents/FakturPenjualan';
+import { generateSuratPesanan } from '../components/orders/documents/SuratPesanan';
 
 export const Orders: React.FC = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -75,168 +73,16 @@ export const Orders: React.FC = () => {
   };
 
   const handleDownloadDocument = async (order: Order, type: 'invoice' | 'faktur' | 'surat_pesanan') => {
-    const docTitle = type === 'invoice' ? 'NOTA PESANAN' : type === 'faktur' ? 'FAKTUR PENJUALAN' : 'SURAT PESANAN';
-    const toastId = toast.loading(`Menyiapkan ${docTitle.toLowerCase()}...`);
-    
-    try {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      
-      // 1. Header Logo & Title
-      doc.setFontSize(24);
-      doc.setTextColor(16, 185, 129); // Emerald 600
-      doc.setFont(undefined, 'bold');
-      doc.text('Cahaya ATK', pageWidth / 2, 20, { align: 'center' });
-      
-      doc.setFontSize(14);
-      doc.setTextColor(0);
-      doc.text('Nota Pesanan', 14, 35);
-      
-      // 2. Buyer & Seller Info Box (Gray Box)
-      doc.setFillColor(245, 245, 245);
-      doc.rect(14, 40, pageWidth - 28, 45, 'F');
-      
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'bold');
-      doc.text('Nama Pembeli:', 20, 48);
-      doc.setFont(undefined, 'normal');
-      doc.text(user?.email || 'Pelanggan Setia', 50, 48);
-      
-      doc.setFont(undefined, 'bold');
-      doc.text('Alamat Pembeli:', 20, 55);
-      doc.setFont(undefined, 'normal');
-      doc.text(order.address, 50, 55, { maxWidth: 80 });
-      
-      doc.setFont(undefined, 'bold');
-      doc.text('No. Handphone:', 20, 75);
-      doc.setFont(undefined, 'normal');
-      doc.text(order.phone, 50, 75);
-      
-      // Right side of the gray box
-      doc.setFont(undefined, 'bold');
-      doc.text('Nama Penjual:', 130, 48);
-      doc.setFont(undefined, 'normal');
-      doc.text('Cahaya ATK', 160, 48);
-      
-      // 3. Order Summary Row
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'bold');
-      doc.text('No. Pesanan', 14, 95);
-      doc.text('Tanggal Transaksi', 55, 95);
-      doc.text('Metode Pembayaran', 100, 95);
-      doc.text('Jasa Kirim', 150, 95);
-      
-      doc.setFont(undefined, 'normal');
-      doc.text(order.id.slice(0, 12).toUpperCase(), 14, 102);
-      doc.text(new Date(order.created_at).toLocaleDateString('id-ID'), 55, 102);
-      doc.text(order.payment_method === 'cod' ? 'COD' : 'QRIS/Transfer', 100, 102);
-      doc.text('Reguler', 150, 102);
-      
-      // 4. Product Details Table
-      doc.setFont(undefined, 'bold');
-      doc.text('Rincian Pesanan', 14, 115);
-      
-      const tableData = order.order_items?.map((item, index) => [
-        index + 1,
-        item.product?.name || 'Produk',
-        `Rp ${item.price_at_time.toLocaleString('id-ID')}`,
-        item.quantity,
-        `Rp ${(item.quantity * item.price_at_time).toLocaleString('id-ID')}`
-      ]) || [];
-      
-      autoTable(doc, {
-        startY: 120,
-        head: [['No.', 'Produk', 'Harga Produk', 'Kuantitas', 'Subtotal']],
-        body: tableData,
-        theme: 'plain',
-        headStyles: { 
-          fillColor: [255, 255, 255], 
-          textColor: [100, 100, 100],
-          fontSize: 8,
-          fontStyle: 'bold',
-          lineWidth: 0.1,
-          lineColor: [230, 230, 230]
-        },
-        bodyStyles: { 
-          fontSize: 8,
-          lineWidth: 0.1,
-          lineColor: [245, 245, 245]
-        },
-        columnStyles: {
-          0: { cellWidth: 10 },
-          1: { cellWidth: 'auto' },
-          2: { halign: 'right' },
-          3: { halign: 'center' },
-          4: { halign: 'right' }
-        }
-      });
-      
-      // 5. Totals Section
-      const finalY = (doc as any).lastAutoTable.finalY + 10;
-      
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'bold');
-      doc.text('Subtotal', 140, finalY);
-      doc.text(`Rp ${order.total_amount.toLocaleString('id-ID')}`, pageWidth - 14, finalY, { align: 'right' });
-      
-      doc.setFont(undefined, 'normal');
-      doc.setFontSize(8);
-      doc.text(`Total Kuantitas: ${order.order_items?.reduce((sum, i) => sum + i.quantity, 0)} produk`, 140, finalY + 5);
-      
-      // Gray box for breakdown
-      doc.setFillColor(250, 250, 250);
-      doc.rect(110, finalY + 15, pageWidth - 124, 45, 'F');
-      
-      const breakdownY = finalY + 25;
-      doc.text('Subtotal Pesanan', 115, breakdownY);
-      doc.text(`Rp ${order.total_amount.toLocaleString('id-ID')}`, pageWidth - 20, breakdownY, { align: 'right' });
-      
-      doc.text('Subtotal Pengiriman', 115, breakdownY + 7);
-      doc.text('Rp 0', pageWidth - 20, breakdownY + 7, { align: 'right' });
-      
-      doc.text('Biaya Layanan', 115, breakdownY + 14);
-      doc.text('Rp 0', pageWidth - 20, breakdownY + 14, { align: 'right' });
-      
-      doc.setFontSize(10);
-      doc.setFont(undefined, 'bold');
-      doc.text('Total Pembayaran', 115, breakdownY + 25);
-      doc.text(`Rp ${order.total_amount.toLocaleString('id-ID')}`, pageWidth - 20, breakdownY + 25, { align: 'right' });
-      
-      // 6. Footer
-      doc.setFontSize(8);
-      doc.setFont(undefined, 'normal');
-      doc.setTextColor(100);
-      doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', 14, doc.internal.pageSize.height - 30);
-      doc.text('Jl. Sultan Agung, RT.3/RW.2, Balegondo, Ngariiboyo, Magetan', 14, doc.internal.pageSize.height - 25);
-      doc.text('NPWP: 00.000.000.0-000.000', 14, doc.internal.pageSize.height - 20);
-      
-      doc.text('End of receipt', pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
-      
-      const fileName = `${docTitle.replace(' ', '_')}_${order.id.slice(0, 8)}.pdf`;
-      
-      if (Capacitor.isNativePlatform()) {
-        const pdfBase64 = doc.output('datauristring').split(',')[1];
-        const savedFile = await Filesystem.writeFile({
-          path: fileName,
-          data: pdfBase64,
-          directory: Directory.Documents,
-        });
-        
-        await Share.share({
-          title: docTitle,
-          text: `Berikut adalah ${docTitle.toLowerCase()} pesanan Anda.`,
-          url: savedFile.uri,
-          dialogTitle: `Bagikan ${docTitle}`,
-        });
-        
-        toast.success(`${docTitle} berhasil disimpan`, { id: toastId });
-      } else {
-        doc.save(fileName);
-        toast.success(`${docTitle} berhasil diunduh`, { id: toastId });
-      }
-    } catch (error: any) {
-      console.error('PDF Error:', error);
-      toast.error(`Gagal mengunduh ${docTitle.toLowerCase()}: ` + error.message, { id: toastId });
+    switch (type) {
+      case 'invoice':
+        await generateInvoiceTagihan(order, user, profile);
+        break;
+      case 'faktur':
+        await generateFakturPenjualan(order, user, profile);
+        break;
+      case 'surat_pesanan':
+        await generateSuratPesanan(order, user, profile);
+        break;
     }
   };
 
