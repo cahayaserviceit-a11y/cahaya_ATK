@@ -80,8 +80,8 @@ export const generateSuratPesanan = async (data: DocumentData) => {
     head: [['No', 'Nama Barang', 'Qty', 'Harga Satuan', 'Total']],
     body: tableData,
     theme: 'grid',
-    headStyles: { fillColor: [40, 40, 40], textColor: [255, 255, 255], fontStyle: 'bold' },
-    styles: { fontSize: 9, cellPadding: 4 },
+    headStyles: { fillColor: [40, 40, 40], textColor: [255, 255, 255], fontStyle: 'bold', lineWidth: 0.3 },
+    styles: { fontSize: 9, cellPadding: 4, lineWidth: 0.3 },
     columnStyles: {
       0: { halign: 'center', cellWidth: 10 },
       2: { halign: 'center', cellWidth: 20 },

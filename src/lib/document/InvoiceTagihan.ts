@@ -75,8 +75,8 @@ export const generateInvoiceTagihan = async (data: DocumentData) => {
     head: [['No', 'Nama Barang', 'Qty', 'Harga Satuan', 'Total']],
     body: tableData,
     theme: 'grid',
-    headStyles: { fillColor: [40, 40, 40], textColor: [255, 255, 255], fontStyle: 'bold' },
-    styles: { fontSize: 9, cellPadding: 3 },
+    headStyles: { fillColor: [40, 40, 40], textColor: [255, 255, 255], fontStyle: 'bold', lineWidth: 0.3 },
+    styles: { fontSize: 9, cellPadding: 3, lineWidth: 0.3 },
     columnStyles: {
       0: { halign: 'center', cellWidth: 10 },
       2: { halign: 'center', cellWidth: 20 },

@@ -153,7 +153,8 @@ export const AdminDashboard: React.FC = () => {
           ['Total Pelanggan', stats.totalUsers],
         ],
         theme: 'grid',
-        headStyles: { fillColor: [16, 185, 129] }
+        headStyles: { fillColor: [16, 185, 129] },
+        styles: { lineWidth: 0.3 }
       });
 
       // Recent Orders Table
@@ -179,8 +180,9 @@ export const AdminDashboard: React.FC = () => {
           startY: (doc as any).lastAutoTable.finalY + 15,
           head: [['ID Order', 'Tanggal', 'Status', 'Metode', 'Total']],
           body: tableData,
-          theme: 'striped',
-          headStyles: { fillColor: [16, 185, 129] }
+          theme: 'grid',
+          headStyles: { fillColor: [16, 185, 129] },
+          styles: { lineWidth: 0.3 }
         });
       } else {
         doc.text('Belum ada data pesanan.', 14, (doc as any).lastAutoTable.finalY + 10);

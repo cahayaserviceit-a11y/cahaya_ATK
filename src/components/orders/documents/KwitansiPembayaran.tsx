@@ -63,7 +63,7 @@ export const generateKwitansiPembayaran = async (order: Order, user: User | null
 
     // 2. Receipt Title & Number Box (SIPLah Style)
     doc.setDrawColor(200);
-    doc.setLineWidth(0.2);
+    doc.setLineWidth(0.3);
     doc.rect(14, 35, pageWidth - 28, 20); // Main Header Box
     doc.line(pageWidth / 2 - 20, 35, pageWidth / 2 - 20, 55); // Vertical Divider
 
@@ -102,7 +102,7 @@ export const generateKwitansiPembayaran = async (order: Order, user: User | null
         fontSize: 9,
         cellPadding: 4,
         lineColor: [200, 200, 200],
-        lineWidth: 0.2,
+        lineWidth: 0.3,
       },
       columnStyles: {
         0: { cellWidth: 40, fontStyle: 'bold' },
@@ -113,7 +113,7 @@ export const generateKwitansiPembayaran = async (order: Order, user: User | null
     const finalY = (doc as any).lastAutoTable.finalY;
 
     // 4. Notes Section
-    doc.setLineWidth(0.2);
+    doc.setLineWidth(0.3);
     doc.rect(14, finalY, pageWidth - 28, 30); // Notes Box
     doc.setFontSize(9);
     doc.setFont(undefined, 'bold');
@@ -125,7 +125,7 @@ export const generateKwitansiPembayaran = async (order: Order, user: User | null
     doc.text('*Simpan kwitansi ini sebagai bukti transaksi.', 18, finalY + 23);
 
     // 5. Signature Section
-    doc.setLineWidth(0.2);
+    doc.setLineWidth(0.3);
     doc.rect(14, finalY + 30, pageWidth - 28, 45); // Signature Box
     doc.line(pageWidth / 2 - 20, finalY + 30, pageWidth / 2 - 20, finalY + 75); // Vertical Divider
 

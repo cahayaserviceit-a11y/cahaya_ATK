@@ -65,7 +65,7 @@ export const generateSuratPesanan = async (order: Order, user: User | null, prof
     // Horizontal Line for Letterhead (Diturunkan sedikit agar tidak menempel logo)
     doc.setLineWidth(0.8);
     doc.line(14, 36, pageWidth - 14, 36);
-    doc.setLineWidth(0.2);
+    doc.setLineWidth(0.3);
     doc.line(14, 37, pageWidth - 14, 37);
     
     // 2. Document Title (Centered)
@@ -122,10 +122,12 @@ export const generateSuratPesanan = async (order: Order, user: User | null, prof
       headStyles: { 
         fillColor: [16, 185, 129],
         halign: 'center',
-        fontSize: 9
+        fontSize: 9,
+        lineWidth: 0.3
       },
       bodyStyles: { 
         fontSize: 9,
+        lineWidth: 0.3,
         fillColor: undefined // Make body transparent to show watermark
       },
       columnStyles: {

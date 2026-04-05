@@ -75,8 +75,8 @@ export const generateFakturPenjualan = async (data: DocumentData) => {
     head: [['No', 'Nama Barang', 'Qty', 'Harga Satuan', 'Jumlah']],
     body: tableData,
     theme: 'grid',
-    headStyles: { fillColor: [245, 245, 245], textColor: [0, 0, 0], fontStyle: 'bold', lineWidth: 0.1 },
-    styles: { fontSize: 10, cellPadding: 3, lineColor: [0, 0, 0] },
+    headStyles: { fillColor: [245, 245, 245], textColor: [0, 0, 0], fontStyle: 'bold', lineWidth: 0.3 },
+    styles: { fontSize: 10, cellPadding: 3, lineColor: [0, 0, 0], lineWidth: 0.3 },
     columnStyles: {
       0: { halign: 'center', cellWidth: 10 },
       2: { halign: 'center', cellWidth: 20 },

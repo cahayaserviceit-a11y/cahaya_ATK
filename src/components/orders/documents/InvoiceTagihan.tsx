@@ -73,6 +73,7 @@ export const generateInvoiceTagihan = async (order: Order, user: User | null, pr
     
     // 2. Info Grid
     doc.setDrawColor(230);
+    doc.setLineWidth(0.3);
     doc.line(14, 35, pageWidth - 14, 35);
     
     doc.setFontSize(9);
@@ -123,11 +124,11 @@ export const generateInvoiceTagihan = async (order: Order, user: User | null, pr
         textColor: [255, 255, 255],
         fontSize: 9,
         fontStyle: 'bold',
-        lineWidth: 0.2
+        lineWidth: 0.3
       },
       bodyStyles: { 
         fontSize: 9,
-        lineWidth: 0.2,
+        lineWidth: 0.3,
         fillColor: undefined // Make body transparent to show watermark
       },
       columnStyles: {
@@ -205,9 +206,9 @@ export const generateInvoiceTagihan = async (order: Order, user: User | null, pr
     doc.setFontSize(8);
     doc.setFont(undefined, 'normal');
     doc.setTextColor(100);
-    doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', pageWidth / 2, doc.internal.pageSize.height - 30, { align: 'center' });
-    doc.text('Jl. Sultan Agung, RT.3/RW.2, Balegondo, Ngariiboyo, Magetan', pageWidth / 2, doc.internal.pageSize.height - 25, { align: 'center' });
-    doc.text('NPWP: 00.000.000.0-000.000', pageWidth / 2, doc.internal.pageSize.height - 20, { align: 'center' });
+    doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', 14, doc.internal.pageSize.height - 30);
+    doc.text('Jl. Sultan Agung, RT.3/RW.2, Balegondo, Ngariiboyo, Magetan', 14, doc.internal.pageSize.height - 25);
+    doc.text('NPWP: 00.000.000.0-000.000', 14, doc.internal.pageSize.height - 20);
     
     doc.text('End of receipt', pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
     
