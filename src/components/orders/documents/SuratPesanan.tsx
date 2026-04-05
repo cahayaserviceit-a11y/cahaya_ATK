@@ -76,7 +76,8 @@ export const generateSuratPesanan = async (order: Order, user: User | null, prof
     
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
-    doc.text(`Nomor: SP/${new Date(order.created_at).getFullYear()}/${order.id.slice(0, 8).toUpperCase()}`, pageWidth / 2, 50, { align: 'center' });
+    const docNumber = order.custom_doc_number || `SP/${new Date(order.created_at).getFullYear()}/${order.id.slice(0, 8).toUpperCase()}`;
+    doc.text(`Nomor: ${docNumber}`, pageWidth / 2, 50, { align: 'center' });
     
     // 3. Info Section (Formal Style)
     doc.setFontSize(10);
@@ -98,7 +99,8 @@ export const generateSuratPesanan = async (order: Order, user: User | null, prof
     doc.text('Tanggal Pesanan', 20, 88);
     doc.text(':', 60, 88);
     doc.setFont(undefined, 'normal');
-    doc.text(new Date(order.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), 65, 88);
+    const docDate = order.custom_doc_date ? new Date(order.custom_doc_date) : new Date(order.created_at);
+    doc.text(docDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), 65, 88);
     
     doc.text('Dengan ini mengajukan pesanan barang dengan rincian sebagai berikut:', 14, 100);
     
@@ -147,7 +149,8 @@ export const generateSuratPesanan = async (order: Order, user: User | null, prof
     
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
-    doc.text(`Magetan, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, pageWidth - 45, finalY - 10, { align: 'center' });
+    const sigDate = order.custom_doc_date ? new Date(order.custom_doc_date) : new Date();
+    doc.text(`Magetan, ${sigDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, pageWidth - 45, finalY - 10, { align: 'center' });
     
     const leftCenterX = 45;
     const rightCenterX = pageWidth - 45;

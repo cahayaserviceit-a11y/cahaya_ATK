@@ -88,17 +88,19 @@ export const generateInvoiceTagihan = async (order: Order, user: User | null, pr
     doc.setFont(undefined, 'bold');
     doc.text('NOMOR INVOICE:', 120, 45);
     doc.setFont(undefined, 'normal');
-    doc.text(`#INV-${order.id.slice(0, 8).toUpperCase()}`, 160, 45);
+    const docNumber = order.custom_doc_number || `#INV-${order.id.slice(0, 8).toUpperCase()}`;
+    doc.text(docNumber, 160, 45);
     
     doc.setFont(undefined, 'bold');
     doc.text('TANGGAL:', 120, 52);
     doc.setFont(undefined, 'normal');
-    doc.text(new Date(order.created_at).toLocaleDateString('id-ID'), 160, 52);
+    const docDate = order.custom_doc_date ? new Date(order.custom_doc_date) : new Date(order.created_at);
+    doc.text(docDate.toLocaleDateString('id-ID'), 160, 52);
     
     doc.setFont(undefined, 'bold');
     doc.text('JATUH TEMPO:', 120, 59);
     doc.setFont(undefined, 'normal');
-    const dueDate = new Date(order.created_at);
+    const dueDate = new Date(docDate);
     dueDate.setDate(dueDate.getDate() + 3); // 3 days due
     doc.text(dueDate.toLocaleDateString('id-ID'), 160, 59);
     
@@ -176,7 +178,8 @@ export const generateInvoiceTagihan = async (order: Order, user: User | null, pr
     
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
-    doc.text(`Magetan, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, pageWidth - 45, sigY - 10, { align: 'center' });
+    const sigDate = order.custom_doc_date ? new Date(order.custom_doc_date) : new Date();
+    doc.text(`Magetan, ${sigDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, pageWidth - 45, sigY - 10, { align: 'center' });
     
     const leftCenterX = 45;
     const rightCenterX = pageWidth - 45;

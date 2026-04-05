@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Order } from '../../types';
-import { ShoppingBag, ChevronDown, CheckCircle, Clock, Truck, XCircle, ArrowLeft, FileText, Receipt, Download } from 'lucide-react';
+import { ShoppingBag, ChevronDown, CheckCircle, Clock, Truck, XCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
-import { useAuth } from '../../context/AuthContext';
-import { generateInvoice, generatePaymentReceipt, generateFaktur, generateSuratPesanan } from '../../lib/documentGenerator';
-import { Capacitor } from '@capacitor/core';
 
 export const AdminOrders: React.FC = () => {
-  const { profile: adminProfile } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
@@ -57,59 +53,28 @@ export const AdminOrders: React.FC = () => {
         .eq('id', orderId);
       if (error) throw error;
       toast.success(`Status pesanan diperbarui ke ${status}`);
-      fetchOrders();
+      fetchOrders(false);
     } catch (error: any) {
       toast.error('Gagal memperbarui status: ' + error.message);
     }
   };
 
-  const handleDownloadDocument = async (order: Order, type: 'invoice' | 'receipt' | 'faktur' | 'sp') => {
-    const documentNames = {
-      invoice: 'Invoice',
-      receipt: 'Bukti Pembayaran',
-      faktur: 'Faktur',
-      sp: 'Surat Pesanan'
-    };
-    
-    const toastId = toast.loading(`Menyiapkan ${documentNames[type]}...`);
+  const updateDocInfo = async (orderId: string, custom_doc_date: string, custom_doc_number: string) => {
+    const toastId = toast.loading('Menyimpan informasi dokumen...');
     try {
-      // 1. Fetch buyer profile
-      const { data: buyerProfile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', order.user_id)
-        .single();
-
-      if (!adminProfile) throw new Error('Profil admin tidak ditemukan');
-
-      // 2. Generate PDF
-      let doc;
-      switch (type) {
-        case 'invoice': doc = await generateInvoice(order, adminProfile, buyerProfile); break;
-        case 'receipt': doc = await generatePaymentReceipt(order, adminProfile, buyerProfile); break;
-        case 'faktur': doc = await generateFaktur(order, adminProfile, buyerProfile); break;
-        case 'sp': doc = await generateSuratPesanan(order, adminProfile, buyerProfile); break;
-      }
-
-      const fileName = `${type.toUpperCase()}_${order.id.slice(0, 8)}.pdf`;
-
-      // 3. Handle Download
-      if (Capacitor.isNativePlatform()) {
-        const pdfBase64 = doc.output('datauristring').split(',')[1];
-        window.parent.postMessage({
-          type: 'DOWNLOAD_FILE',
-          data: pdfBase64,
-          fileName: fileName,
-          mimeType: 'application/pdf'
-        }, '*');
-        toast.success('Dokumen sedang diproses ke memori HP...', { id: toastId });
-      } else {
-        doc.save(fileName);
-        toast.success('Dokumen berhasil diunduh', { id: toastId });
-      }
+      const { error } = await supabase
+        .from('orders')
+        .update({ 
+          custom_doc_date: custom_doc_date || null, 
+          custom_doc_number: custom_doc_number || null 
+        })
+        .eq('id', orderId);
+      
+      if (error) throw error;
+      toast.success('Informasi dokumen berhasil disimpan', { id: toastId });
+      fetchOrders(false);
     } catch (error: any) {
-      console.error('PDF Error:', error);
-      toast.error('Gagal mengunduh dokumen: ' + error.message, { id: toastId });
+      toast.error('Gagal menyimpan: ' + error.message, { id: toastId });
     }
   };
 
@@ -294,36 +259,46 @@ export const AdminOrders: React.FC = () => {
                       </div>
                       
                       <div className="p-4 bg-emerald-50/5 rounded-2xl border border-emerald-100">
+                        <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-4">Pengaturan Dokumen (SPJ)</h4>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Tanggal Dokumen</label>
+                            <input 
+                              type="date" 
+                              defaultValue={order.custom_doc_date ? new Date(order.custom_doc_date).toISOString().split('T')[0] : ''}
+                              className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                              id={`doc-date-${order.id}`}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Nomor Dokumen (Opsional)</label>
+                            <input 
+                              type="text" 
+                              placeholder="Contoh: SP/2024/001"
+                              defaultValue={order.custom_doc_number || ''}
+                              className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                              id={`doc-num-${order.id}`}
+                            />
+                          </div>
+                          <button 
+                            onClick={() => {
+                              const dateInput = document.getElementById(`doc-date-${order.id}`) as HTMLInputElement;
+                              const numInput = document.getElementById(`doc-num-${order.id}`) as HTMLInputElement;
+                              updateDocInfo(order.id, dateInput.value, numInput.value);
+                            }}
+                            className="w-full bg-emerald-600 text-white py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100"
+                          >
+                            Simpan Info Dokumen
+                          </button>
+                          <p className="text-[10px] text-neutral-400 italic mt-2">
+                            *Tanggal ini akan muncul di TTD dan info pesanan pada Invoice, Faktur, & SP.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="p-4 bg-emerald-50/5 rounded-2xl border border-emerald-100">
                         <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-2">Informasi Pembayaran</h4>
                         <p className="text-sm text-emerald-900">Pembayaran dilakukan melalui Transfer Bank / E-Wallet. Silakan verifikasi bukti bayar sebelum memproses pesanan.</p>
-                      </div>
-
-                      {/* Document Actions */}
-                      <div className="space-y-3">
-                        <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Dokumen Pesanan</h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          <button
-                            onClick={() => handleDownloadDocument(order, 'invoice')}
-                            className="flex flex-col items-center justify-center space-y-1 bg-neutral-900 text-white p-3 rounded-xl text-[10px] font-bold hover:bg-emerald-600 transition-all shadow-sm"
-                          >
-                            <FileText className="w-4 h-4" />
-                            <span>Invoice</span>
-                          </button>
-                          <button
-                            onClick={() => handleDownloadDocument(order, 'sp')}
-                            className="flex flex-col items-center justify-center space-y-1 bg-white text-neutral-900 border border-neutral-200 p-3 rounded-xl text-[10px] font-bold hover:bg-neutral-50 transition-all shadow-sm"
-                          >
-                            <FileText className="w-4 h-4" />
-                            <span>SP</span>
-                          </button>
-                          <button
-                            onClick={() => handleDownloadDocument(order, 'receipt')}
-                            className="flex flex-col items-center justify-center space-y-1 bg-white text-neutral-900 border border-neutral-200 p-3 rounded-xl text-[10px] font-bold hover:bg-neutral-50 transition-all shadow-sm"
-                          >
-                            <Receipt className="w-4 h-4" />
-                            <span>Nota</span>
-                          </button>
-                        </div>
                       </div>
                     </div>
                   </div>

@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'buyer' | 'customer';
+export type UserRole = 'admin' | 'buyer';
 
 export interface Profile {
   id: string;
@@ -9,8 +9,6 @@ export interface Profile {
   bio?: string;
   address?: string;
   phone?: string;
-  npwp?: string;
-  logo_url?: string;
   created_at: string;
 }
 
@@ -38,6 +36,8 @@ export interface Order {
   address: string;
   payment_method: 'cod' | 'qris_transfer';
   created_at: string;
+  custom_doc_date?: string;
+  custom_doc_number?: string;
   order_items?: OrderItem[];
 }
 
