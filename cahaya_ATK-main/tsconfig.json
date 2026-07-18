@@ -23,9 +23,5 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "types": ["vite/client"]
-  },
-  "exclude": [
-    "node_modules",
-    "cahaya_ATK-main"
-  ]
+  }
 }

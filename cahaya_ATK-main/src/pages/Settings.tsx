@@ -1,0 +1,512 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
+import { toast } from 'sonner';
+import { motion } from 'motion/react';
+import { User, MapPin, Phone, FileText, Camera, Save, ArrowLeft, Upload } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+export const Settings: React.FC = () => {
+  const { user, profile, refreshProfile } = useAuth();
+  const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [formData, setFormData] = useState({
+    full_name: '',
+    phone: '',
+    address: '',
+    bio: '',
+    avatar_url: '',
+    npwp: '',
+    logo_url: ''
+  });
+
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        full_name: profile.full_name || '',
+        phone: profile.phone || '',
+        address: profile.address || '',
+        bio: profile.bio || '',
+        avatar_url: profile.avatar_url || '',
+        npwp: profile.npwp || '',
+        logo_url: profile.logo_url || ''
+      });
+    }
+  }, [profile]);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: formData.full_name,
+          phone: formData.phone,
+          address: formData.address,
+          bio: formData.bio,
+          avatar_url: formData.avatar_url,
+          npwp: formData.npwp,
+          logo_url: formData.logo_url
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      await refreshProfile();
+      toast.success('Profil berhasil diperbarui!');
+    } catch (error: any) {
+      toast.error('Gagal memperbarui profil: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      if (!user || !e.target.files || e.target.files.length === 0) return;
+
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // 1. Delete old photo if exists
+      if (formData.avatar_url) {
+        const oldPath = formData.avatar_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage.from('avatars').remove([`${user.id}/${oldPath}`]);
+        }
+      }
+
+      // 2. Upload new photo
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // 3. Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // 4. Update local state and DB
+      setFormData({ ...formData, avatar_url: publicUrl });
+      
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+      
+      await refreshProfile();
+      toast.success('Foto profil berhasil diunggah!');
+    } catch (error: any) {
+      toast.error('Gagal mengunggah foto: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploadingLogo(true);
+      if (!user || !e.target.files || e.target.files.length === 0) return;
+
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/logo_${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // 1. Delete old logo if exists
+      if (formData.logo_url) {
+        const oldPath = formData.logo_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage.from('avatars').remove([`${user.id}/${oldPath}`]);
+        }
+      }
+
+      // 2. Upload new logo
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // 3. Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // 4. Update local state and DB
+      setFormData({ ...formData, logo_url: publicUrl });
+      
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ logo_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+      
+      await refreshProfile();
+      toast.success('Logo toko berhasil diunggah!');
+    } catch (error: any) {
+      toast.error('Gagal mengunggah logo: ' + error.message);
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const handleDeletePhoto = async () => {
+    if (!user || !formData.avatar_url) return;
+
+    const confirmDelete = window.confirm('Apakah Anda yakin ingin menghapus foto profil?');
+    if (!confirmDelete) return;
+
+    try {
+      setUploading(true);
+      
+      // 1. Extract path from URL
+      const urlParts = formData.avatar_url.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      const filePath = `${user.id}/${fileName}`;
+
+      // 2. Remove from Storage
+      const { error: storageError } = await supabase.storage
+        .from('avatars')
+        .remove([filePath]);
+
+      if (storageError) throw storageError;
+
+      // 3. Update Database
+      const { error: dbError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', user.id);
+
+      if (dbError) throw dbError;
+
+      setFormData({ ...formData, avatar_url: '' });
+      await refreshProfile();
+      toast.success('Foto profil berhasil dihapus!');
+    } catch (error: any) {
+      toast.error('Gagal menghapus foto: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteLogo = async () => {
+    if (!user || !formData.logo_url) return;
+
+    const confirmDelete = window.confirm('Apakah Anda yakin ingin menghapus logo toko?');
+    if (!confirmDelete) return;
+
+    try {
+      setUploadingLogo(true);
+      
+      // 1. Extract path from URL
+      const urlParts = formData.logo_url.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      const filePath = `${user.id}/${fileName}`;
+
+      // 2. Remove from Storage
+      const { error: storageError } = await supabase.storage
+        .from('avatars')
+        .remove([filePath]);
+
+      if (storageError) throw storageError;
+
+      // 3. Update Database
+      const { error: dbError } = await supabase
+        .from('profiles')
+        .update({ logo_url: null })
+        .eq('id', user.id);
+
+      if (dbError) throw dbError;
+
+      setFormData({ ...formData, logo_url: '' });
+      await refreshProfile();
+      toast.success('Logo toko berhasil dihapus!');
+    } catch (error: any) {
+      toast.error('Gagal menghapus logo: ' + error.message);
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
+          <User className="w-10 h-10 text-emerald-600" />
+        </div>
+        <h2 className="text-2xl font-bold mb-2">Silahkan Login</h2>
+        <p className="text-neutral-500 mb-8">Anda harus login untuk mengakses halaman pengaturan.</p>
+        <button 
+          onClick={() => navigate('/login')}
+          className="bg-neutral-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-emerald-600 transition-all"
+        >
+          Login Sekarang
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="flex items-center space-x-4 mb-8">
+        <button 
+          onClick={() => navigate(-1)}
+          className="p-2 hover:bg-white rounded-full transition-colors shadow-sm"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <h1 className="text-3xl font-bold tracking-tight">Pengaturan Profil</h1>
+      </div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-3xl shadow-xl shadow-emerald-900/5 overflow-hidden"
+      >
+        <div className="p-8">
+          <form onSubmit={handleUpdateProfile} className="space-y-6">
+            {/* Avatar Section */}
+            <div className="flex flex-col items-center mb-8">
+              <div className="relative group">
+                <div className="w-32 h-32 rounded-3xl bg-emerald-50 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg relative">
+                  {formData.avatar_url ? (
+                    <img 
+                      src={formData.avatar_url} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <User className="w-16 h-16 text-emerald-300" />
+                  )}
+                  
+                  {uploading && (
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                      <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    </div>
+                  )}
+                </div>
+                
+                <button 
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute -bottom-2 -right-2 p-3 bg-neutral-900 text-white rounded-2xl shadow-lg hover:bg-emerald-600 transition-all group-hover:scale-110"
+                >
+                  <Camera className="w-5 h-5" />
+                </button>
+              </div>
+
+              <input 
+                type="file" 
+                ref={fileInputRef}
+                className="hidden" 
+                accept="image/*"
+                onChange={handleFileUpload}
+              />
+
+              <div className="mt-6 flex items-center space-x-3">
+                <button 
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center space-x-2 text-xs font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl hover:bg-emerald-100 transition-all"
+                >
+                  <span>Ganti Foto</span>
+                </button>
+                
+                {formData.avatar_url && (
+                  <button 
+                    type="button"
+                    onClick={handleDeletePhoto}
+                    className="flex items-center space-x-2 text-xs font-bold text-red-600 bg-red-50 px-4 py-2 rounded-xl hover:bg-red-100 transition-all"
+                  >
+                    <span>Hapus Foto</span>
+                  </button>
+                )}
+              </div>
+              
+              <p className="mt-4 text-[10px] text-neutral-400 uppercase tracking-widest">
+                Format: JPG, PNG (Maks. 2MB)
+              </p>
+            </div>
+
+            {/* Store Logo Section (Admin Only) */}
+            {profile?.role === 'admin' && (
+              <div className="p-6 bg-emerald-50/50 rounded-3xl border border-emerald-100/50 mb-8">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-emerald-900">Logo Toko</h3>
+                    <p className="text-[10px] text-emerald-600 uppercase tracking-wider font-medium">Digunakan pada dokumen transaksi</p>
+                  </div>
+                  <Upload className="w-5 h-5 text-emerald-400" />
+                </div>
+                
+                <div className="flex items-center space-x-6">
+                  <div className="w-24 h-24 rounded-2xl bg-white flex items-center justify-center overflow-hidden border-2 border-emerald-100 shadow-sm relative">
+                    {formData.logo_url ? (
+                      <img 
+                        src={formData.logo_url} 
+                        alt="Store Logo" 
+                        className="w-full h-full object-contain p-2"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <FileText className="w-10 h-10 text-emerald-100" />
+                    )}
+                    
+                    {uploadingLogo && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      <button 
+                        type="button"
+                        onClick={() => logoInputRef.current?.click()}
+                        className="text-xs font-bold bg-neutral-900 text-white px-4 py-2 rounded-xl hover:bg-emerald-600 transition-all"
+                      >
+                        Unggah Logo
+                      </button>
+                      
+                      {formData.logo_url && (
+                        <button 
+                          type="button"
+                          onClick={handleDeleteLogo}
+                          className="text-xs font-bold bg-white text-red-600 border border-red-100 px-4 py-2 rounded-xl hover:bg-red-50 transition-all"
+                        >
+                          Hapus
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-neutral-400 italic">
+                      * Logo ini akan muncul di bagian atas Invoice, Faktur, dan Surat Pesanan.
+                    </p>
+                  </div>
+                </div>
+
+                <input 
+                  type="file" 
+                  ref={logoInputRef}
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                />
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Full Name */}
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-neutral-700 flex items-center space-x-2">
+                  <span>Nama Lengkap</span>
+                </label>
+                <input 
+                  type="text" 
+                  required
+                  className="w-full px-5 py-3 rounded-2xl bg-neutral-50 border border-neutral-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all"
+                  placeholder="Masukkan nama lengkap"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                />
+              </div>
+
+              {/* Phone */}
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-neutral-700 flex items-center space-x-2">
+                  <span>Nomor WhatsApp</span>
+                </label>
+                <input 
+                  type="tel" 
+                  className="w-full px-5 py-3 rounded-2xl bg-neutral-50 border border-neutral-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all"
+                  placeholder="Contoh: 08123456789"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-neutral-700 flex items-center space-x-2">
+                <span>Biodata Singkat</span>
+              </label>
+              <textarea 
+                rows={3}
+                className="w-full px-5 py-3 rounded-2xl bg-neutral-50 border border-neutral-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all resize-none"
+                placeholder="Ceritakan sedikit tentang Anda..."
+                value={formData.bio}
+                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              />
+            </div>
+
+            {/* Address */}
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-neutral-700 flex items-center space-x-2">
+                <span>Alamat Pengiriman Default</span>
+              </label>
+              <textarea 
+                rows={4}
+                className="w-full px-5 py-3 rounded-2xl bg-neutral-50 border border-neutral-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all resize-none"
+                placeholder="Masukkan alamat lengkap untuk pengiriman otomatis..."
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              />
+              <p className="text-[10px] text-neutral-400 italic">
+                * Alamat ini akan otomatis terisi saat Anda melakukan checkout pesanan.
+              </p>
+            </div>
+
+            {/* NPWP (Admin Only) */}
+            {profile?.role === 'admin' && (
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-neutral-700 flex items-center space-x-2">
+                  <span>NPWP (Hanya Admin)</span>
+                </label>
+                <input 
+                  type="text" 
+                  className="w-full px-5 py-3 rounded-2xl bg-neutral-50 border border-neutral-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all"
+                  placeholder="Masukkan nomor NPWP Anda"
+                  value={formData.npwp}
+                  onChange={(e) => setFormData({ ...formData, npwp: e.target.value })}
+                />
+                <p className="text-[10px] text-neutral-400 italic">
+                  * NPWP ini akan digunakan pada dokumen Invoice dan Faktur.
+                </p>
+              </div>
+            )}
+
+            <button 
+              type="submit"
+              disabled={loading || uploading}
+              className="w-full bg-neutral-900 text-white py-4 rounded-2xl font-bold hover:bg-emerald-600 transition-all flex items-center justify-center space-x-2 shadow-lg shadow-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <span>Simpan Perubahan</span>
+              )}
+            </button>
+          </form>
+        </div>
+      </motion.div>
+    </div>
+  );
+};

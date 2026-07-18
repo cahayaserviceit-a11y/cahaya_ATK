@@ -9,8 +9,6 @@ export interface Profile {
   bio?: string;
   address?: string;
   phone?: string;
-  npwp?: string;
-  logo_url?: string;
   created_at: string;
 }
 

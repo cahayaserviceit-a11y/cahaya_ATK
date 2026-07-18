@@ -12,7 +12,6 @@ import { FakturPrint } from './pages/FakturPrint';
 import { AdminDashboard } from './pages/admin/Dashboard';
 import { AdminProducts } from './pages/admin/Products';
 import { AdminOrders } from './pages/admin/Orders';
-import SplashLoader from './components/SplashLoader';
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, loading } = useAuth();
@@ -27,7 +26,6 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <SplashLoader />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Layout />}>
