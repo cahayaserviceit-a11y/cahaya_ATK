@@ -78,12 +78,12 @@ export const generateKwitansiPembayaran = async (order: Order, user: User | null
     // Right Box: Receipt Number
     const rightBoxCenterX = ((pageWidth / 2 - 20) + (pageWidth - 14)) / 2;
     doc.setFontSize(9);
-    doc.text('Nomor Kwitansi', rightBoxCenterX, 43, { align: 'center' });
+    doc.text('Nomor Dokumen', rightBoxCenterX, 43, { align: 'center' });
     doc.setFont(undefined, 'normal');
-    const docNumber = order.custom_doc_number || `KW-${order.id.slice(0, 8).toUpperCase()}`;
+    const docNumber = order.custom_doc_number || `#INV-${order.id.slice(0, 8).toUpperCase()}`;
     doc.text(docNumber, rightBoxCenterX, 49, { align: 'center' });
 
-    // 3. Main Content Table (SIPLah Style)
+    // 3. Main Content Table
     const amountInWords = terbilang(order.total_amount) + ' Rupiah';
     const customerName = profile?.full_name || user?.email || 'Pelanggan';
     const docDate = order.custom_doc_date ? new Date(order.custom_doc_date) : new Date(order.created_at);
@@ -94,8 +94,8 @@ export const generateKwitansiPembayaran = async (order: Order, user: User | null
       body: [
         ['Sudah terima dari :', `${customerName}\n${order.address}`],
         ['Terbilang :', amountInWords],
-        ['Untuk Pembayaran :', `Kegiatan Jual Beli Alat Tulis Kantor & Sekolah dengan nomor Invoice #INV-${order.id.slice(0, 8).toUpperCase()}`],
-        ['Alokasi Anggaran :', 'BOSP / Dana Operasional'],
+        ['Untuk Pembayaran :', `Kegiatan Jual Beli Alat Tulis Kantor & Sekolah dengan nomor Invoice ${docNumber}`],
+        ['Keterangan :', 'Pembayaran Kebutuhan Barang Alat Tulis Kantor & Operasional'],
       ],
       theme: 'grid',
       styles: {
@@ -133,19 +133,22 @@ export const generateKwitansiPembayaran = async (order: Order, user: User | null
     doc.setFontSize(10);
     doc.text(`Magetan, ${formattedDate}`, rightBoxCenterX, finalY + 38, { align: 'center' });
     doc.setFont(undefined, 'bold');
-    doc.text('Nama Penanggung Jawab', rightBoxCenterX, finalY + 45, { align: 'center' });
+    doc.text('Pengelola Toko,', rightBoxCenterX, finalY + 45, { align: 'center' });
     
     doc.setFont(undefined, 'normal');
     doc.text('( ____________________ )', rightBoxCenterX, finalY + 63, { align: 'center' });
 
     doc.setFont(undefined, 'bold');
-    doc.text('CAHAYA ATK', rightBoxCenterX, finalY + 70, { align: 'center' });
+    doc.text('Pengelola Cahaya ATK', rightBoxCenterX, finalY + 70, { align: 'center' });
 
-    // 6. Footer (SIPLah Style)
+    // 6. Footer (Standar Legal Cahaya ATK)
     doc.setFontSize(8);
     doc.setFont(undefined, 'normal');
     doc.setTextColor(100);
-    doc.text('Dokumen ini diprint melalui sistem Aplikasi E-commerce Cahaya ATK', pageWidth / 2, pageHeight - 15, { align: 'center' });
+    doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', 14, pageHeight - 25);
+    doc.text('Jl. Sultan Agung, RT.3/RW.2, Balegondo, Ngariboyo, Magetan', 14, pageHeight - 20);
+    doc.text(`NPWP: ${profile?.npwp || '00.000.000.0-000.000'}`, 14, pageHeight - 15);
+    doc.text('Kwitansi ini adalah bukti pembayaran yang sah melalui sistem Aplikasi Cahaya ATK', pageWidth / 2, pageHeight - 8, { align: 'center' });
 
     const fileName = `Kwitansi_Pembayaran_${order.id.slice(0, 8)}.pdf`;
     

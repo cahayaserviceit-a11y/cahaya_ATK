@@ -9,7 +9,9 @@ import { generateInvoiceTagihan } from '../../components/orders/documents/Invoic
 import { generateFakturPenjualan } from '../../components/orders/documents/FakturPenjualan';
 import { generateSuratPesanan } from '../../components/orders/documents/SuratPesanan';
 import { generateKwitansiPembayaran } from '../../components/orders/documents/KwitansiPembayaran';
-import { FileText, Download } from 'lucide-react';
+import { generateRincianPajakSPJ } from '../../components/orders/documents/RincianPajakSPJ';
+import { generateBeritaAcaraSerahTerima } from '../../components/orders/documents/BeritaAcaraSerahTerima';
+import { FileText, Download, Calculator, Percent, Coins } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const AdminOrders: React.FC = () => {
@@ -17,7 +19,22 @@ export const AdminOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [taxConfigs, setTaxConfigs] = useState<Record<string, { ppn: number; pph: number; admin: number }>>({});
   const navigate = useNavigate();
+
+  const getTaxConfig = (orderId: string) => {
+    return taxConfigs[orderId] || { ppn: 11, pph: 0.5, admin: 1.0 };
+  };
+
+  const updateTaxRate = (orderId: string, field: 'ppn' | 'pph' | 'admin', value: number) => {
+    setTaxConfigs(prev => ({
+      ...prev,
+      [orderId]: {
+        ...getTaxConfig(orderId),
+        [field]: isNaN(value) ? 0 : value
+      }
+    }));
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -85,7 +102,7 @@ export const AdminOrders: React.FC = () => {
     }
   };
 
-  const handleDownloadDocument = async (order: Order, type: 'invoice' | 'faktur' | 'surat_pesanan' | 'kwitansi') => {
+  const handleDownloadDocument = async (order: Order, type: 'invoice' | 'faktur' | 'surat_pesanan' | 'kwitansi' | 'pajak_spj' | 'bast') => {
     switch (type) {
       case 'invoice':
         await generateInvoiceTagihan(order, user, profile);
@@ -98,6 +115,19 @@ export const AdminOrders: React.FC = () => {
         break;
       case 'kwitansi':
         await generateKwitansiPembayaran(order, user, profile);
+        break;
+      case 'pajak_spj': {
+        const cfg = getTaxConfig(order.id);
+        await generateRincianPajakSPJ(order, user, profile, {
+          ppnPercent: cfg.ppn,
+          pphPercent: cfg.pph,
+          adminPercent: cfg.admin,
+          adminLabel: 'Admin Cahaya ATK'
+        });
+        break;
+      }
+      case 'bast':
+        await generateBeritaAcaraSerahTerima(order, user, profile);
         break;
     }
   };
@@ -217,30 +247,145 @@ export const AdminOrders: React.FC = () => {
                   className="border-t border-emerald-100 bg-emerald-50/10"
                 >
                   <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Items List */}
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Daftar Barang</h4>
-                      <div className="space-y-2">
-                        {order.order_items?.map(item => (
-                          <div key={item.id} className="flex items-center justify-between bg-white p-3 rounded-xl border border-neutral-100">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-neutral-50 rounded-lg overflow-hidden">
-                                <img 
-                                  src={item.product?.image_url || `https://picsum.photos/seed/${item.product_id}/100/100`} 
-                                  alt="Product" 
-                                  className="w-full h-full object-cover"
-                                  referrerPolicy="no-referrer"
-                                />
+                    {/* Items List & Tax Calculator */}
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Daftar Barang</h4>
+                        <div className="space-y-2">
+                          {order.order_items?.map(item => (
+                            <div key={item.id} className="flex items-center justify-between bg-white p-3 rounded-xl border border-neutral-100">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-neutral-50 rounded-lg overflow-hidden">
+                                  <img 
+                                    src={item.product?.image_url || `https://picsum.photos/seed/${item.product_id}/100/100`} 
+                                    alt="Product" 
+                                    className="w-full h-full object-cover"
+                                    referrerPolicy="no-referrer"
+                                  />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold">{item.product?.name || 'Produk Terhapus'}</p>
+                                  <p className="text-xs text-neutral-400">{item.quantity} x Rp {item.price_at_time.toLocaleString('id-ID')}</p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-sm font-bold">{item.product?.name || 'Produk Terhapus'}</p>
-                                <p className="text-xs text-neutral-400">{item.quantity} x Rp {item.price_at_time.toLocaleString('id-ID')}</p>
+                              <p className="text-sm font-bold">Rp {(item.quantity * item.price_at_time).toLocaleString('id-ID')}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Kalkulator & Analisa Keuangan SPJ Toko */}
+                      {(() => {
+                        const cfg = getTaxConfig(order.id);
+                        const nominalPPN = Math.round((cfg.ppn / 100) * order.total_amount);
+                        const nominalPPh = Math.round((cfg.pph / 100) * order.total_amount);
+                        const nominalAdmin = Math.round((cfg.admin / 100) * order.total_amount);
+                        const totalPotongan = nominalPPN + nominalPPh + nominalAdmin;
+                        const hargaReal = order.total_amount - totalPotongan;
+
+                        return (
+                          <div className="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm space-y-4">
+                            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+                              <div className="flex items-center space-x-2">
+                                <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                                  <Calculator className="w-4 h-4" />
+                                </div>
+                                <div>
+                                  <h4 className="text-xs font-bold text-neutral-800 uppercase tracking-wider">Kalkulator Pajak & Real Toko</h4>
+                                  <p className="text-[11px] text-neutral-400">Hitungan otomatis potongan pajak (bisa disesuaikan)</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <button
+                                  onClick={() => setTaxConfigs(prev => ({ ...prev, [order.id]: { ppn: 11, pph: 0.5, admin: 1.0 } }))}
+                                  className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-1 rounded-md hover:bg-emerald-100 transition-colors"
+                                  title="Reset ke Standar (11% + 0.5% + 1%)"
+                                >
+                                  Standar
+                                </button>
+                                <button
+                                  onClick={() => setTaxConfigs(prev => ({ ...prev, [order.id]: { ppn: 11, pph: 0, admin: 1.0 } }))}
+                                  className="text-[10px] bg-neutral-100 text-neutral-600 font-bold px-2 py-1 rounded-md hover:bg-neutral-200 transition-colors"
+                                  title="Bebas PPh (11% + 0% + 1%)"
+                                >
+                                  Bebas PPh
+                                </button>
                               </div>
                             </div>
-                            <p className="text-sm font-bold">Rp {(item.quantity * item.price_at_time).toLocaleString('id-ID')}</p>
+
+                            {/* Inputs Persentase Pajak */}
+                            <div className="grid grid-cols-3 gap-2">
+                              <div className="bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/70">
+                                <label className="block text-[10px] font-bold text-neutral-500 mb-1">PPN (%)</label>
+                                <input
+                                  type="number"
+                                  step="0.1"
+                                  value={cfg.ppn}
+                                  onChange={(e) => updateTaxRate(order.id, 'ppn', parseFloat(e.target.value))}
+                                  className="w-full bg-white border border-neutral-200 rounded-lg px-2 py-1 text-xs font-bold text-neutral-800 outline-none focus:ring-1 focus:ring-emerald-500"
+                                />
+                              </div>
+
+                              <div className="bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/70">
+                                <label className="block text-[10px] font-bold text-neutral-500 mb-1">PPh (%)</label>
+                                <input
+                                  type="number"
+                                  step="0.1"
+                                  value={cfg.pph}
+                                  onChange={(e) => updateTaxRate(order.id, 'pph', parseFloat(e.target.value))}
+                                  className="w-full bg-white border border-neutral-200 rounded-lg px-2 py-1 text-xs font-bold text-neutral-800 outline-none focus:ring-1 focus:ring-emerald-500"
+                                />
+                              </div>
+
+                              <div className="bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/70">
+                                <label className="block text-[10px] font-bold text-neutral-500 mb-1">Admin Toko (%)</label>
+                                <input
+                                  type="number"
+                                  step="0.1"
+                                  value={cfg.admin}
+                                  onChange={(e) => updateTaxRate(order.id, 'admin', parseFloat(e.target.value))}
+                                  className="w-full bg-white border border-neutral-200 rounded-lg px-2 py-1 text-xs font-bold text-neutral-800 outline-none focus:ring-1 focus:ring-emerald-500"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Rincian Angka Live */}
+                            <div className="bg-neutral-50 p-3.5 rounded-xl border border-neutral-100 space-y-2 text-xs">
+                              <div className="flex justify-between text-neutral-600">
+                                <span>Nilai Tagihan (Harga Bruto):</span>
+                                <span className="font-bold text-neutral-900">Rp {order.total_amount.toLocaleString('id-ID')}</span>
+                              </div>
+                              <div className="flex justify-between text-neutral-500">
+                                <span>PPN ({cfg.ppn}%):</span>
+                                <span className="font-bold text-red-600">- Rp {nominalPPN.toLocaleString('id-ID')}</span>
+                              </div>
+                              <div className="flex justify-between text-neutral-500">
+                                <span>PPh ({cfg.pph}%):</span>
+                                <span className="font-bold text-red-600">- Rp {nominalPPh.toLocaleString('id-ID')}</span>
+                              </div>
+                              <div className="flex justify-between text-neutral-500">
+                                <span>Admin Cahaya ATK ({cfg.admin}%):</span>
+                                <span className="font-bold text-red-600">- Rp {nominalAdmin.toLocaleString('id-ID')}</span>
+                              </div>
+                              <div className="border-t border-dashed border-neutral-300 pt-2 flex justify-between items-center">
+                                <div>
+                                  <span className="font-bold text-emerald-800 block">HARGA REAL BERSIH TOKO:</span>
+                                  <span className="text-[10px] text-neutral-400">Uang bersih masuk kas</span>
+                                </div>
+                                <span className="text-base font-extrabold text-emerald-600">Rp {hargaReal.toLocaleString('id-ID')}</span>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => handleDownloadDocument(order, 'pajak_spj')}
+                              className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center space-x-2 shadow-sm transition-all"
+                            >
+                              <FileText className="w-4 h-4" />
+                              <span>Unduh Lembar Perhitungan Pajak</span>
+                            </button>
                           </div>
-                        ))}
-                      </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Actions & Info */}
@@ -336,11 +481,37 @@ export const AdminOrders: React.FC = () => {
                             </div>
                             <Download className="w-4 h-4 text-neutral-300 group-hover:text-emerald-600" />
                           </button>
+
+                          <button 
+                            onClick={() => handleDownloadDocument(order, 'bast')}
+                            className="flex items-center justify-between p-3 bg-white border border-emerald-100 rounded-xl hover:bg-emerald-50 transition-all group"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-white transition-colors">
+                                <FileText className="w-4 h-4 text-emerald-600" />
+                              </div>
+                              <span className="text-sm font-bold text-neutral-700">Berita Acara Serah Terima (BAST)</span>
+                            </div>
+                            <Download className="w-4 h-4 text-neutral-300 group-hover:text-emerald-600" />
+                          </button>
+
+                          <button 
+                            onClick={() => handleDownloadDocument(order, 'pajak_spj')}
+                            className="flex items-center justify-between p-3 bg-white border border-emerald-100 rounded-xl hover:bg-emerald-50 transition-all group"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-white transition-colors">
+                                <FileText className="w-4 h-4 text-emerald-600" />
+                              </div>
+                              <span className="text-sm font-bold text-neutral-700">Rincian Perhitungan Pajak</span>
+                            </div>
+                            <Download className="w-4 h-4 text-neutral-300 group-hover:text-emerald-600" />
+                          </button>
                         </div>
                       </div>
 
                       <div className="p-4 bg-emerald-50/5 rounded-2xl border border-emerald-100">
-                        <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-4">Pengaturan Dokumen (SPJ)</h4>
+                        <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-4">Pengaturan Dokumen Transaksi</h4>
                         <div className="space-y-4">
                           <div>
                             <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Tanggal Dokumen</label>
@@ -355,7 +526,7 @@ export const AdminOrders: React.FC = () => {
                             <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Nomor Dokumen (Opsional)</label>
                             <input 
                               type="text" 
-                              placeholder="Contoh: SP/2024/001"
+                              placeholder="Contoh: #INV-001"
                               defaultValue={order.custom_doc_number || ''}
                               className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
                               id={`doc-num-${order.id}`}
