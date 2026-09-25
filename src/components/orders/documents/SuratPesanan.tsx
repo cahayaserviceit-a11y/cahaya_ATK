@@ -76,8 +76,8 @@ export const generateSuratPesanan = async (order: Order, user: User | null, prof
     
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
-    const docNumber = order.custom_doc_number || `#INV-${order.id.slice(0, 8).toUpperCase()}`;
-    doc.text(`Nomor Dokumen: ${docNumber}`, pageWidth / 2, 50, { align: 'center' });
+    const docNumber = order.custom_doc_number || `SP/${new Date(order.created_at).getFullYear()}/${order.id.slice(0, 8).toUpperCase()}`;
+    doc.text(`Nomor: ${docNumber}`, pageWidth / 2, 50, { align: 'center' });
     
     // 3. Info Section (Formal Style)
     doc.setFontSize(10);
@@ -124,12 +124,6 @@ export const generateSuratPesanan = async (order: Order, user: User | null, prof
         halign: 'center',
         fontSize: 9,
         lineWidth: 0.3
-      },
-      didParseCell: (hookData) => {
-        if (hookData.section === 'head') {
-          hookData.cell.styles.halign = 'center';
-          hookData.cell.styles.valign = 'middle';
-        }
       },
       bodyStyles: { 
         fontSize: 9,
@@ -179,16 +173,13 @@ export const generateSuratPesanan = async (order: Order, user: User | null, prof
     doc.setFont(undefined, 'normal');
     doc.text('( ____________________ )', rightCenterX, finalY + 35, { align: 'center' });
     doc.setFont(undefined, 'bold');
-    doc.text('Pengelola Cahaya ATK', rightCenterX, finalY + 42, { align: 'center' });
+    doc.text('Cahaya Atk', rightCenterX, finalY + 42, { align: 'center' });
     
-    // 6. Footer (Standar Legal Cahaya ATK)
+    // 6. Footer
     doc.setFontSize(8);
     doc.setFont(undefined, 'normal');
     doc.setTextColor(100);
-    doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', 14, doc.internal.pageSize.height - 25);
-    doc.text('Jl. Sultan Agung, RT.3/RW.2, Balegondo, Ngariboyo, Magetan', 14, doc.internal.pageSize.height - 20);
-    doc.text(`NPWP: ${profile?.npwp || '00.000.000.0-000.000'}`, 14, doc.internal.pageSize.height - 15);
-    doc.text('Dokumen ini dibuat resmi melalui sistem Aplikasi Cahaya ATK', pageWidth / 2, doc.internal.pageSize.height - 8, { align: 'center' });
+    doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', pageWidth / 2, doc.internal.pageSize.height - 15, { align: 'center' });
     
     const fileName = `Surat_Pesanan_${order.id.slice(0, 8)}.pdf`;
     

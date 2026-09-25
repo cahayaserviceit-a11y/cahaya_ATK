@@ -51,10 +51,3 @@ export interface OrderItem {
   price_at_time: number;
   product?: Product;
 }
-
-export interface SchoolTransactionData {
-  schoolName?: string;
-  schoolAddress?: string;
-  personInCharge?: string;
-  personTitle?: string;
-}

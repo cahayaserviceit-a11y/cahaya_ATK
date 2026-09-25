@@ -85,32 +85,25 @@ export const generateInvoiceTagihan = async (order: Order, user: User | null, pr
     doc.text(order.address, 14, 55, { maxWidth: 80 });
     doc.text(order.phone, 14, 65);
     
-    // Right side info (Presisi Titik Dua Lurus)
-    const rightLabelX = 120;
-    const rightColonX = 152;
-    const rightValueX = 155;
-
+    // Right side info
     doc.setFont(undefined, 'bold');
-    doc.text('NOMOR INVOICE', rightLabelX, 45);
-    doc.text(':', rightColonX, 45);
+    doc.text('NOMOR INVOICE:', 120, 45);
     doc.setFont(undefined, 'normal');
     const docNumber = order.custom_doc_number || `#INV-${order.id.slice(0, 8).toUpperCase()}`;
-    doc.text(docNumber, rightValueX, 45);
+    doc.text(docNumber, 160, 45);
     
     doc.setFont(undefined, 'bold');
-    doc.text('TANGGAL', rightLabelX, 52);
-    doc.text(':', rightColonX, 52);
+    doc.text('TANGGAL:', 120, 52);
     doc.setFont(undefined, 'normal');
     const docDate = order.custom_doc_date ? new Date(order.custom_doc_date) : new Date(order.created_at);
-    doc.text(docDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), rightValueX, 52);
+    doc.text(docDate.toLocaleDateString('id-ID'), 160, 52);
     
     doc.setFont(undefined, 'bold');
-    doc.text('JATUH TEMPO', rightLabelX, 59);
-    doc.text(':', rightColonX, 59);
+    doc.text('JATUH TEMPO:', 120, 59);
     doc.setFont(undefined, 'normal');
     const dueDate = new Date(docDate);
     dueDate.setDate(dueDate.getDate() + 3); // 3 days due
-    doc.text(dueDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), rightValueX, 59);
+    doc.text(dueDate.toLocaleDateString('id-ID'), 160, 59);
     
     // 3. Product Details Table (Emerald Theme)
     const tableData = order.order_items?.map((item, index) => [
@@ -131,14 +124,7 @@ export const generateInvoiceTagihan = async (order: Order, user: User | null, pr
         textColor: [255, 255, 255],
         fontSize: 9,
         fontStyle: 'bold',
-        lineWidth: 0.3,
-        halign: 'center'
-      },
-      didParseCell: (hookData) => {
-        if (hookData.section === 'head') {
-          hookData.cell.styles.halign = 'center';
-          hookData.cell.styles.valign = 'middle';
-        }
+        lineWidth: 0.3
       },
       bodyStyles: { 
         fontSize: 9,
@@ -146,7 +132,7 @@ export const generateInvoiceTagihan = async (order: Order, user: User | null, pr
         fillColor: undefined // Make body transparent to show watermark
       },
       columnStyles: {
-        0: { cellWidth: 12, halign: 'center' },
+        0: { cellWidth: 10 },
         2: { halign: 'right' },
         3: { halign: 'center' },
         4: { halign: 'right' }
@@ -214,17 +200,17 @@ export const generateInvoiceTagihan = async (order: Order, user: User | null, pr
     doc.setFont(undefined, 'normal');
     doc.text('( ____________________ )', rightCenterX, sigY + 30, { align: 'center' });
     doc.setFont(undefined, 'bold');
-    doc.text('Pengelola Cahaya ATK', rightCenterX, sigY + 37, { align: 'center' });
+    doc.text('Cahaya Atk', rightCenterX, sigY + 37, { align: 'center' });
     
     // 7. Footer
     doc.setFontSize(8);
     doc.setFont(undefined, 'normal');
     doc.setTextColor(100);
     doc.text('Cahaya ATK - Solusi Alat Tulis Kantor & Sekolah', 14, doc.internal.pageSize.height - 30);
-    doc.text('Jl. Sultan Agung, RT.3/RW.2, Balegondo, Ngariboyo, Magetan', 14, doc.internal.pageSize.height - 25);
-    doc.text(`NPWP: ${profile?.npwp || '00.000.000.0-000.000'}`, 14, doc.internal.pageSize.height - 20);
+    doc.text('Jl. Sultan Agung, RT.3/RW.2, Balegondo, Ngariiboyo, Magetan', 14, doc.internal.pageSize.height - 25);
+    doc.text('NPWP: 00.000.000.0-000.000', 14, doc.internal.pageSize.height - 20);
     
-    doc.text('Invoice ini adalah bukti tagihan pembayaran yang sah', pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+    doc.text('End of receipt', pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
     
     const fileName = `Invoice_Tagihan_${order.id.slice(0, 8)}.pdf`;
     
